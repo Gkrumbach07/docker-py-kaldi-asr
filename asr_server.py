@@ -66,7 +66,7 @@ from kaldiasr.nnet3 import KaldiNNet3OnlineModel, KaldiNNet3OnlineDecoder
 import numpy as np
 
 DEFAULT_HOST      = ''
-DEFAULT_PORT      = 80
+DEFAULT_PORT      = 8080
 
 DEFAULT_MODEL_DIR = '/opt/kaldi-model'
 DEFAULT_MODEL     = 'model'
