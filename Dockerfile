@@ -27,3 +27,21 @@ RUN pip install \
 RUN pip install py-kaldi-asr==0.4.1
 
 COPY asr_server.py /opt/asr_server/
+
+RUN apt-get install xz-utils -y && \
+    apt-get clean && \
+    apt-get autoclean && \
+    apt-get autoremove -y
+
+ARG MODEL_NAME=kaldi-generic-en-tdnn_250-r20190609
+
+WORKDIR /opt
+RUN wget -q http://goofy.zamia.org/zamia-speech/asr-models/${MODEL_NAME}.tar.xz && \
+    tar xf ${MODEL_NAME}.tar.xz && \
+    mv ${MODEL_NAME} kaldi-model && \
+    rm ${MODEL_NAME}.tar.xz
+
+EXPOSE 8080
+
+WORKDIR /opt/asr_server
+CMD ["python", "asr_server.py"]
