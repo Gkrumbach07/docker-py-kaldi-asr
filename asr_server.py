@@ -106,8 +106,8 @@ class SpeechHandler(BaseHTTPRequestHandler):
     def do_POST(self):
 
         global wf, decoder, vf_login, recordings_dir, audiofn
-        
-        start_time = time()
+
+        logging.debug("POST %s" % self.path)
 
         if self.path=="/decode":
 
@@ -125,7 +125,43 @@ class SpeechHandler(BaseHTTPRequestHandler):
 
             # FIXME: remove audio = map(lambda x: int(x), audios.split(','))
 
-            audiofn = ''
+            if do_record:
+
+                # store recording in WAV format
+
+                if not wf:
+
+                    ds = datetime.date.strftime(datetime.date.today(), '%Y%m%d')
+                    audiodirfn = '%s/%s-%s-rec/wav' % (recordings_dir, vf_login, ds)
+                    logging.debug('audiodirfn: %s' % audiodirfn)
+                    mkdirs(audiodirfn)
+
+                    cnt = 0
+                    while True:
+                        cnt += 1
+                        audiofn = '%s/de5-%03d.wav' % (audiodirfn, cnt)
+                        if not os.path.isfile(audiofn):
+                            break
+
+                    logging.debug('audiofn: %s' % audiofn)
+
+                    # create wav file
+
+                    wf = wave.open(audiofn, 'wb')
+                    wf.setnchannels(1)
+                    wf.setsampwidth(2)
+                    wf.setframerate(SAMPLE_RATE)
+
+                packed_audio = struct.pack('%sh' % len(audio), *audio)
+                wf.writeframes(packed_audio)
+
+                if do_finalize:
+
+                    wf.close()
+                    wf = None
+
+            else:
+                audiofn = ''
 
             if do_asr:
                 decoder.decode(SAMPLE_RATE, np.array(audio, dtype=np.float32), do_finalize)
@@ -144,11 +180,10 @@ class SpeechHandler(BaseHTTPRequestHandler):
             self.send_header('Content-Type', 'application/json')
             self.end_headers()
             
-            #hstr, confidence = decoder.get_decoded_string()
+            hstr, confidence = decoder.get_decoded_string()
             reply = {'hstr': hstr, 'confidence': confidence, 'audiofn': audiofn}
 
             self.wfile.write(json.dumps(reply))
-            logging.debug("POST %s; Time: %fs" % (self.path,  time()-start_time))
             return
 
 
@@ -220,4 +255,3 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         logging.error('^C received, shutting down the web server')
         server.socket.close()
-
