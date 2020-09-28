@@ -130,7 +130,6 @@ class SpeechHandler(BaseHTTPRequestHandler):
 
             if do_asr:
                 decoder.decode(SAMPLE_RATE, np.array(audio, dtype=np.float32), do_finalize)
-                logger.debug("finalize: %s", do_finalize)
 
                 if do_finalize:
 
