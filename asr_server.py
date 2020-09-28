@@ -106,8 +106,8 @@ class SpeechHandler(BaseHTTPRequestHandler):
     def do_POST(self):
 
         global wf, decoder, vf_login, recordings_dir, audiofn
-
-        logging.debug("POST %s" % self.path)
+        
+        start_time = time()
 
         if self.path=="/decode":
 
@@ -148,6 +148,7 @@ class SpeechHandler(BaseHTTPRequestHandler):
             reply = {'hstr': hstr, 'confidence': confidence, 'audiofn': audiofn}
 
             self.wfile.write(json.dumps(reply))
+            logging.debug("POST %s; Time: %fs" % (self.path,  time()-start_time))
             return
 
 
