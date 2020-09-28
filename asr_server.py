@@ -146,7 +146,7 @@ class SpeechHandler(BaseHTTPRequestHandler):
             self.send_header('Content-Type', 'application/json')
             self.end_headers()
             
-            #hstr, confidence = decoder.get_decoded_string()
+            hstr, confidence = decoder.get_decoded_string()
             reply = {'hstr': hstr, 'confidence': confidence, 'audiofn': audiofn}
 
             self.wfile.write(json.dumps(reply))
