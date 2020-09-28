@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
@@ -125,46 +126,11 @@ class SpeechHandler(BaseHTTPRequestHandler):
 
             # FIXME: remove audio = map(lambda x: int(x), audios.split(','))
 
-            if do_record:
-
-                # store recording in WAV format
-
-                if not wf:
-
-                    ds = datetime.date.strftime(datetime.date.today(), '%Y%m%d')
-                    audiodirfn = '%s/%s-%s-rec/wav' % (recordings_dir, vf_login, ds)
-                    logging.debug('audiodirfn: %s' % audiodirfn)
-                    mkdirs(audiodirfn)
-
-                    cnt = 0
-                    while True:
-                        cnt += 1
-                        audiofn = '%s/de5-%03d.wav' % (audiodirfn, cnt)
-                        if not os.path.isfile(audiofn):
-                            break
-
-                    logging.debug('audiofn: %s' % audiofn)
-
-                    # create wav file
-
-                    wf = wave.open(audiofn, 'wb')
-                    wf.setnchannels(1)
-                    wf.setsampwidth(2)
-                    wf.setframerate(SAMPLE_RATE)
-
-                packed_audio = struct.pack('%sh' % len(audio), *audio)
-                wf.writeframes(packed_audio)
-
-                if do_finalize:
-
-                    wf.close()
-                    wf = None
-
-            else:
-                audiofn = ''
+            audiofn = ''
 
             if do_asr:
                 decoder.decode(SAMPLE_RATE, np.array(audio, dtype=np.float32), do_finalize)
+                logger.debug("finalize: %s", do_finalize)
 
                 if do_finalize:
 
@@ -180,7 +146,7 @@ class SpeechHandler(BaseHTTPRequestHandler):
             self.send_header('Content-Type', 'application/json')
             self.end_headers()
             
-            hstr, confidence = decoder.get_decoded_string()
+            #hstr, confidence = decoder.get_decoded_string()
             reply = {'hstr': hstr, 'confidence': confidence, 'audiofn': audiofn}
 
             self.wfile.write(json.dumps(reply))
