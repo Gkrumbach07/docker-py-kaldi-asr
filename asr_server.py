@@ -108,8 +108,6 @@ class SpeechHandler(BaseHTTPRequestHandler):
 
         global wf, decoder, vf_login, recordings_dir, audiofn
 
-        logging.debug("POST %s" % self.path)
-
         if self.path=="/decode":
 
             data = json.loads(self.rfile.read(int(self.headers.getheader('content-length'))))
@@ -146,6 +144,7 @@ class SpeechHandler(BaseHTTPRequestHandler):
             self.end_headers()
             
             hstr, confidence = decoder.get_decoded_string()
+            logging.debug("Prediction: %s" % hstr)
             reply = {'hstr': hstr, 'confidence': confidence, 'audiofn': audiofn}
 
             self.wfile.write(json.dumps(reply))
