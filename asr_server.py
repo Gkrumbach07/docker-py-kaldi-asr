@@ -84,8 +84,6 @@ PROC_TITLE        = 'asr_server'
 # FIXME: get rid of these, implement proper session management
 #
 
-audiofn = ''   # path to current wav file being written
-wf      = None # current wav file being written
 decoder = None # kaldi nnet3 online decoder
 
 def mkdirs(path):
@@ -106,7 +104,7 @@ class SpeechHandler(BaseHTTPRequestHandler):
 
     def do_POST(self):
 
-        global wf, decoder, vf_login, recordings_dir, audiofn
+        global decoder
 
         if self.path=="/decode":
 
@@ -115,38 +113,32 @@ class SpeechHandler(BaseHTTPRequestHandler):
             # print data
 
             audio       = data['audio']
-            do_record   = data['do_record']
-            do_asr      = data['do_asr']
             do_finalize = data['do_finalize']
-            count   = data['count']
 
             hstr        = ''
             confidence  = 0.0
 
             # FIXME: remove audio = map(lambda x: int(x), audios.split(','))
 
-            audiofn = ''
+            decoder.decode(SAMPLE_RATE, np.array(audio, dtype=np.float32), do_finalize)
 
-            if do_asr:
-                decoder.decode(SAMPLE_RATE, np.array(audio, dtype=np.float32), do_finalize)
+            if do_finalize:
 
-                if do_finalize:
+                hstr, confidence = decoder.get_decoded_string()
 
-                    hstr, confidence = decoder.get_decoded_string()
-
-                    logging.debug ( "*****************************************************************************")
-                    logging.debug ( "**")
-                    logging.debug ( "** %9.5f %s" % (confidence, hstr))
-                    logging.debug ( "**")
-                    logging.debug ( "*****************************************************************************")
+                logging.debug ( "*****************************************************************************")
+                logging.debug ( "**")
+                logging.debug ( "** %9.5f %s" % (confidence, hstr))
+                logging.debug ( "**")
+                logging.debug ( "*****************************************************************************")
 
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
             self.end_headers()
             
             hstr, confidence = decoder.get_decoded_string()
-            logging.debug("Prediction: %s; id: %f" % (hstr, count))
-            reply = {'hstr': hstr, 'confidence': confidence, 'audiofn': audiofn}
+            
+            reply = {'hstr': hstr, 'confidence': confidence}
 
             self.wfile.write(json.dumps(reply))
             return
@@ -177,12 +169,6 @@ if __name__ == '__main__':
     parser.add_option ("-m", "--model", dest="model", type = "string", default=DEFAULT_MODEL,
                        help="kaldi model, default: %s" % DEFAULT_MODEL)
 
-    parser.add_option ("-r", "--recordings-dir", dest="recordings_dir", type = "string", default=DEFAULT_REC_DIR,
-                       help="wav recordings directory, default: %s" % DEFAULT_REC_DIR)
-
-    parser.add_option ("-l", "--voxforge-login", dest="vf_login", type = "string", default=DEFAULT_VF_LOGIN,
-                       help="voxforge login (used in recording filename generation), default: %s" % DEFAULT_VF_LOGIN)
-
     (options, args) = parser.parse_args()
 
     if options.verbose:
@@ -192,9 +178,6 @@ if __name__ == '__main__':
 
     kaldi_model_dir = options.model_dir
     kaldi_model     = options.model
-
-    vf_login        = options.vf_login
-    recordings_dir  = options.recordings_dir
 
     #
     # setup kaldi decoder
