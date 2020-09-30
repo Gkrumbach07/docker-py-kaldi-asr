@@ -118,7 +118,7 @@ class SpeechHandler(BaseHTTPRequestHandler):
             do_record   = data['do_record']
             do_asr      = data['do_asr']
             do_finalize = data['do_finalize']
-            sent_time   = data['sent_time']
+            count   = data['count']
 
             hstr        = ''
             confidence  = 0.0
@@ -145,7 +145,7 @@ class SpeechHandler(BaseHTTPRequestHandler):
             self.end_headers()
             
             hstr, confidence = decoder.get_decoded_string()
-            logging.debug("Prediction: %s; Time since client post: %f" % (hstr, time() - sent_time))
+            logging.debug("Prediction: %s; id: %f" % (hstr, count))
             reply = {'hstr': hstr, 'confidence': confidence, 'audiofn': audiofn}
 
             self.wfile.write(json.dumps(reply))
