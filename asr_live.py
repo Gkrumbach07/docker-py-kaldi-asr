@@ -33,14 +33,12 @@ import requests
 from time import time, sleep
 from optparse import OptionParser
 
-from vad import VAD
 from pulserecorder import PulseRecorder
 
 
-DEFAULT_URL      = 'localhost:8080'
+DEFAULT_URL = 'localhost:8080'
 
-DEFAULT_VOLUME                   = 150
-DEFAULT_AGGRESSIVENESS           = 2
+DEFAULT_VOLUME = 150
 
 #
 # commandline
@@ -49,16 +47,19 @@ DEFAULT_AGGRESSIVENESS           = 2
 parser = OptionParser("usage: %prog [options]")
 
 parser.add_option ("-v", "--verbose", action="store_true", dest="verbose",
-                   help="verbose output")
+                    help="verbose output")
+
+parser.add_option ("-p", "--produce", action="store_true", dest="do_produce",
+                    help="produce kafka topic")
 
 parser.add_option ("-H", "--host", dest="host", type = "string", default=DEFAULT_URL,
-                   help="host, default: %s" % DEFAULT_URL)
+                    help="host, default: %s" % DEFAULT_URL)
 
 parser.add_option ("-V", "--volume", dest="volume", type = "int", default=DEFAULT_VOLUME,
-                   help="broker port, default: %d" % DEFAULT_VOLUME)
+                    help="broker port, default: %d" % DEFAULT_VOLUME)
 
 parser.add_option ("-s", "--source", dest="source", type = "string", default=None,
-                   help="pulseaudio source, default: auto-detect mic")
+                    help="pulseaudio source, default: auto-detect mic")
 
 
 (options, args) = parser.parse_args()
@@ -71,7 +72,6 @@ logging.getLogger("requests").setLevel(logging.WARNING)
 
 source         = options.source
 volume         = options.volume
-aggressiveness = options.aggressiveness
 
 url = 'http://%s/decode' % (options.host)
 
@@ -96,9 +96,9 @@ try:
         if longest_streak > 10:
             finalize = True
 
-
         data = {'audio'      : samples,
-                'do_finalize': finalize}
+                'do_finalize': finalize,
+                'do_produce' : options.do_produce}
 
         response = requests.post(url, data=json.dumps(data))
         if not response.ok:

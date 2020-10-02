@@ -30,7 +30,6 @@ import time
 
 import numpy as np
 from builtins import str as text, range
-from vad import BUFFER_DURATION
 
 SOURCE_TIMEOUT = 30 # 3 seconds
 
@@ -290,7 +289,7 @@ MIX_MODE_RIGHT            = 2
 DEFAULT_VOLUME            =   100
 DEFAULT_RATE              = 16000
 DEFAULT_NAME              = b'Python PulseRecorder'
-DEFAULT_FRAMES_PER_BUFFER = int(DEFAULT_RATE * BUFFER_DURATION / 1000)
+DEFAULT_FRAMES_PER_BUFFER = int(DEFAULT_RATE * 30 / 1000)
 DEFAULT_MIX_MODE          = MIX_MODE_BOTH
 
 class PulseRecorder(object):

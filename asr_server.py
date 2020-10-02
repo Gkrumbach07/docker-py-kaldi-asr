@@ -85,6 +85,8 @@ PROC_TITLE        = 'asr_server'
 #
 
 decoder = None # kaldi nnet3 online decoder
+producer = None
+topic = None
 
 def mkdirs(path):
     try:
@@ -104,7 +106,7 @@ class SpeechHandler(BaseHTTPRequestHandler):
 
     def do_POST(self):
 
-        global decoder
+        global decoder, producer, topic
 
         if self.path=="/decode":
 
@@ -114,6 +116,7 @@ class SpeechHandler(BaseHTTPRequestHandler):
 
             audio       = data['audio']
             do_finalize = data['do_finalize']
+            do_produce  = data['do_produce']
 
             hstr        = ''
             confidence  = 0.0
@@ -135,9 +138,12 @@ class SpeechHandler(BaseHTTPRequestHandler):
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
             self.end_headers()
-            
+
             hstr, confidence = decoder.get_decoded_string()
-            
+
+            if do_produce and (topic != None and producer != None):
+                producer.send(topic, json.dumps(hstr).encode('utf-8'))
+
             reply = {'hstr': hstr, 'confidence': confidence}
 
             self.wfile.write(json.dumps(reply))
@@ -148,7 +154,7 @@ if __name__ == '__main__':
 
     setproctitle (PROC_TITLE)
 
-    #
+    #d
     # commandline
     #
 
@@ -169,6 +175,12 @@ if __name__ == '__main__':
     parser.add_option ("-m", "--model", dest="model", type = "string", default=DEFAULT_MODEL,
                        help="kaldi model, default: %s" % DEFAULT_MODEL)
 
+    parser.add_option('b', '--broker', dest="broker", type = "string", help='The bootstrap servers, env variable KAFKA_BROKERS',
+                       default=None)
+
+    parser.add_option('-t', '--topic', dest="topic", type = "string", help='Topic to publish to, env variable KAFKA_TOPIC',
+                       default='decoded_speech')
+
     (options, args) = parser.parse_args()
 
     if options.verbose:
@@ -188,6 +200,12 @@ if __name__ == '__main__':
     nnet3_model = KaldiNNet3OnlineModel (kaldi_model_dir, kaldi_model)
     logging.info('%s loading model... done. took %fs.' % (kaldi_model, time()-start_time))
     decoder = KaldiNNet3OnlineDecoder (nnet3_model)
+
+    if topic != None and broker != None:
+        logging.info('creating kafka producer')
+        producer = KafkaProducer(bootstrap_servers=options.broker)
+        topic = options.topic
+
 
     #
     # run HTTP server
