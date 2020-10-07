@@ -65,6 +65,7 @@ from BaseHTTPServer import BaseHTTPRequestHandler,HTTPServer
 
 from kaldiasr.nnet3 import KaldiNNet3OnlineModel, KaldiNNet3OnlineDecoder
 import numpy as np
+import kafka
 
 DEFAULT_HOST      = ''
 DEFAULT_PORT      = 8080
