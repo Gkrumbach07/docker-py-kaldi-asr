@@ -87,9 +87,6 @@ try:
                 'topic'      : topic,
                 'broker'     : broker}
 
-
-        logging.info(data)
-
         response = requests.post(url, data=json.dumps(data))
         if not response.ok:
             logging.error(response.text)

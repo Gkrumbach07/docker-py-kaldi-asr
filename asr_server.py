@@ -126,7 +126,7 @@ class SpeechHandler(BaseHTTPRequestHandler):
             do_produce = topic != None and broker != None
 
             if do_produce and current_broker != broker:
-                logging.info('Creating new Kafka producer %s with topic %s' % broker, topic)
+                logging.info('Creating new Kafka producer %s with topic %s' % (broker, topic))
                 current_broker = broker
                 current_topic = topic
                 producer.close()
