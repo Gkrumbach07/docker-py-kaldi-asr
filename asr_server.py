@@ -132,7 +132,7 @@ class SpeechHandler(BaseHTTPRequestHandler):
                 producer.close()
                 producer = KafkaProducer(bootstrap_servers=current_broker)
 
-            else if do_produce and current_topic != topic:
+            elif do_produce and current_topic != topic:
                 logging.info('Changing the Kafka topic to %s', topic)
                 current_topic = topic
 
