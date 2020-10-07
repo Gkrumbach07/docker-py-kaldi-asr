@@ -159,12 +159,7 @@ class SpeechHandler(BaseHTTPRequestHandler):
             hstr, confidence = decoder.get_decoded_string()
 
             if do_produce:
-                if producer.bootstrap_connected():
-                    producer.send(current_topic, json.dumps(hstr).encode('utf-8'))
-                else:
-                    logging.error("Kafka bootstrap disconected. Data not sent.")
-                    producer.close()
-                    current_broker = None
+                producer.send(current_topic, json.dumps(hstr).encode('utf-8'))
 
             reply = {'hstr': hstr, 'confidence': confidence}
 
