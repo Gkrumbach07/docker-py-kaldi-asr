@@ -107,7 +107,7 @@ class SpeechHandler(BaseHTTPRequestHandler):
 
     def do_POST(self):
 
-        global decoder, producer, topic
+        global decoder, producer, current_broker, current_topic
 
         if self.path=="/decode":
 

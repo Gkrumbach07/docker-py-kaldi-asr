@@ -51,11 +51,12 @@ logging.getLogger("requests").setLevel(logging.WARNING)
 source         = options.source
 volume         = options.volume
 
-topic, broker = None
+topic = None
+broker = None
 if options.topic and options.broker:
     topic = options.topic
     broker = options.broker
-else if (options.topic or options.broker) and !(options.topic and options.broker):
+elif (options.topic or options.broker) and  not (options.topic and options.broker):
     logging.warning("A topic and broker need to be specified. Kafka is diabled")
 
 url = 'http://%s/decode' % (options.host)
@@ -85,6 +86,9 @@ try:
                 'do_finalize': finalize,
                 'topic'      : topic,
                 'broker'     : broker}
+
+
+        logging.info(data)
 
         response = requests.post(url, data=json.dumps(data))
         if not response.ok:
