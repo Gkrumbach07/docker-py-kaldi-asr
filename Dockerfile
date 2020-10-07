@@ -23,6 +23,7 @@ RUN pip install \
         python-json-logger==0.1.9 \
         setproctitle==1.1.10 \
         typing==3.6.4
+        kafka
 
 RUN pip install py-kaldi-asr==0.4.1
 
