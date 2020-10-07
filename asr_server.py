@@ -85,8 +85,9 @@ PROC_TITLE        = 'asr_server'
 #
 
 decoder = None # kaldi nnet3 online decoder
+current_broker = None
+current_topic = None
 producer = None
-topic = None
 
 def mkdirs(path):
     try:
@@ -116,10 +117,24 @@ class SpeechHandler(BaseHTTPRequestHandler):
 
             audio       = data['audio']
             do_finalize = data['do_finalize']
-            do_produce  = data['do_produce']
+            topic       = data['topic']
+            broker      = data['broker']
 
             hstr        = ''
             confidence  = 0.0
+
+            do_produce = topic != None and broker != None
+
+            if do_produce and current_broker != broker:
+                logging.info('Creating new Kafka producer %s with topic %s' % broker, topic)
+                current_broker = broker
+                current_topic = topic
+                producer.close()
+                producer = KafkaProducer(bootstrap_servers=current_broker)
+
+            else if do_produce and current_topic != topic:
+                logging.info('Changing the Kafka topic to %s', topic)
+                current_topic = topic
 
             # FIXME: remove audio = map(lambda x: int(x), audios.split(','))
 
@@ -141,8 +156,13 @@ class SpeechHandler(BaseHTTPRequestHandler):
 
             hstr, confidence = decoder.get_decoded_string()
 
-            if do_produce and (topic != None and producer != None):
-                producer.send(topic, json.dumps(hstr).encode('utf-8'))
+            if do_produce:
+                if producer.bootstrap_connected():
+                    producer.send(current_topic, json.dumps(hstr).encode('utf-8'))
+                else:
+                    logging.error("Kafka bootstrap disconected. Data not sent.")
+                    producer.close()
+                    current_broker = None
 
             reply = {'hstr': hstr, 'confidence': confidence}
 
@@ -175,12 +195,6 @@ if __name__ == '__main__':
     parser.add_option ("-m", "--model", dest="model", type = "string", default=DEFAULT_MODEL,
                        help="kaldi model, default: %s" % DEFAULT_MODEL)
 
-    parser.add_option('b', '--broker', dest="broker", type = "string", help='The bootstrap servers, env variable KAFKA_BROKERS',
-                       default=None)
-
-    parser.add_option('-t', '--topic', dest="topic", type = "string", help='Topic to publish to, env variable KAFKA_TOPIC',
-                       default='decoded_speech')
-
     (options, args) = parser.parse_args()
 
     if options.verbose:
@@ -200,12 +214,6 @@ if __name__ == '__main__':
     nnet3_model = KaldiNNet3OnlineModel (kaldi_model_dir, kaldi_model)
     logging.info('%s loading model... done. took %fs.' % (kaldi_model, time()-start_time))
     decoder = KaldiNNet3OnlineDecoder (nnet3_model)
-
-    if topic != None and broker != None:
-        logging.info('creating kafka producer')
-        producer = KafkaProducer(bootstrap_servers=options.broker)
-        topic = options.topic
-
 
     #
     # run HTTP server

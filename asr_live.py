@@ -1,26 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-#
-# Copyright 2017 Guenter Bartsch
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Lesser General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Lesser General Public License for more details.
-#
-# You should have received a copy of the GNU Lesser General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#
-# very basic example client for our example speech asr server
-#
-
 import os
 import sys
 import logging
@@ -49,9 +26,6 @@ parser = OptionParser("usage: %prog [options]")
 parser.add_option ("-v", "--verbose", action="store_true", dest="verbose",
                     help="verbose output")
 
-parser.add_option ("-p", "--produce", action="store_true", dest="do_produce",
-                    help="produce kafka topic")
-
 parser.add_option ("-H", "--host", dest="host", type = "string", default=DEFAULT_URL,
                     help="host, default: %s" % DEFAULT_URL)
 
@@ -60,6 +34,10 @@ parser.add_option ("-V", "--volume", dest="volume", type = "int", default=DEFAUL
 
 parser.add_option ("-s", "--source", dest="source", type = "string", default=None,
                     help="pulseaudio source, default: auto-detect mic")
+
+parser.add_option('-b', '--broker', dest="broker", type = "string", help='The bootstrap servers')
+
+parser.add_option('-t', '--topic', dest="topic", type = "string", help='Topic to publish to')
 
 
 (options, args) = parser.parse_args()
@@ -72,6 +50,13 @@ logging.getLogger("requests").setLevel(logging.WARNING)
 
 source         = options.source
 volume         = options.volume
+
+topic, broker = None
+if options.topic and options.broker:
+    topic = options.topic
+    broker = options.broker
+else if (options.topic or options.broker) and !(options.topic and options.broker):
+    logging.warning("A topic and broker need to be specified. Kafka is diabled")
 
 url = 'http://%s/decode' % (options.host)
 
@@ -98,7 +83,8 @@ try:
 
         data = {'audio'      : samples,
                 'do_finalize': finalize,
-                'do_produce' : options.do_produce}
+                'topic'      : topic,
+                'broker'     : broker}
 
         response = requests.post(url, data=json.dumps(data))
         if not response.ok:
