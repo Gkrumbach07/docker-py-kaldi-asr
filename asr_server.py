@@ -138,7 +138,6 @@ class SpeechHandler(BaseHTTPRequestHandler):
                 logging.info('Changing the Kafka topic to %s', topic)
                 current_topic = topic
 
-            # FIXME: remove audio = map(lambda x: int(x), audios.split(','))
 
             decoder.decode(SAMPLE_RATE, np.array(audio, dtype=np.float32), do_finalize)
 
@@ -161,7 +160,7 @@ class SpeechHandler(BaseHTTPRequestHandler):
             if do_produce:
                 producer.send(current_topic, json.dumps(hstr).encode('utf-8'))
 
-            reply = {'hstr': hstr, 'confidence': confidence}
+            reply = {'hstr': hstr, 'confidence': confidence, 'obj': json.dumps(decoder.__dict__)}
 
             self.wfile.write(json.dumps(reply))
             return
@@ -171,7 +170,7 @@ if __name__ == '__main__':
 
     setproctitle (PROC_TITLE)
 
-    #d
+    #
     # commandline
     #
 
