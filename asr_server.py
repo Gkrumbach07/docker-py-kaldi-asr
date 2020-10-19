@@ -24,28 +24,7 @@
 # WARNING:
 #     right now, this supports a single client only - needs a lot more work
 #     to become (at least somewhat) scalable
-#
-# Decode WAV Data
-# ---------------
-#
-# * POST `/decode`
-# * args (JSON encoded dict):
-#   * "audio"       : array of signed int16 samples
-#   * "do_record"   : boolean, if true record to wav file on disk
-#   * "do_asr"      : boolean, if true start/continue kaldi ASR
-#   * "do_finalize" : boolean, if true finish kaldi ASR, return decoded string
-#
-# Returns:
-#
-# * 400 if request is invalid
-# * 200 OK
-# * 201 OK {"hstr": "hello world", "confidence": 0.02, "audiofn": "data/recordings/anonymous-20170105-rec/wav/de5-005.wav"}
-#
-# Example:
-#
-# curl -i -H "Content-Type: application/json" -X POST \
-#      -d '{"audio": [1,2,3,4], "do_record": true, "do_asr": true, "do_finalize": true}' \
-#      http://localhost:8301/decode
+
 
 
 import os
@@ -160,7 +139,6 @@ class SpeechHandler(BaseHTTPRequestHandler):
             if do_produce:
                 producer.send(current_topic, json.dumps(hstr).encode('utf-8'))
 
-            logging.info(json.dumps(decoder.__dict__))
             reply = {'hstr': hstr, 'confidence': confidence}
 
             self.wfile.write(json.dumps(reply))
