@@ -160,7 +160,8 @@ class SpeechHandler(BaseHTTPRequestHandler):
             if do_produce:
                 producer.send(current_topic, json.dumps(hstr).encode('utf-8'))
 
-            reply = {'hstr': hstr, 'confidence': confidence, 'obj': json.dumps(decoder.__dict__)}
+            logging.info(json.dumps(decoder.__dict__))
+            reply = {'hstr': hstr, 'confidence': confidence}
 
             self.wfile.write(json.dumps(reply))
             return
