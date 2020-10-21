@@ -73,7 +73,7 @@ class SessionState():
         self.current_topic = None
         self.producer = None
 
-    def updateProducer(new_broker, new_topic):
+    def updateProducer(self, new_broker, new_topic):
         if self.current_broker != new_broker:
             logging.info('Creating new Kafka producer\
              %s with topic %s' % (new_broker, new_topic))

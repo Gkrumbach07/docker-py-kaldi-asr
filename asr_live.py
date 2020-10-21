@@ -79,13 +79,16 @@ try:
         samples = rec.get_samples().tolist()
 
         finalize = False
-        if longest_streak > 10:
+        if longest_streak > 3:
             finalize = True
+
+        id = 123 #temp
 
         data = {'audio'      : samples,
                 'do_finalize': finalize,
                 'topic'      : topic,
-                'broker'     : broker}
+                'broker'     : broker,
+                'id'         : id}
 
         response = requests.post(url, data=json.dumps(data))
         if not response.ok:
