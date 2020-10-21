@@ -14,7 +14,7 @@ parser.add_option ("-b", "--broker", dest="broker", type = "string", default=DEF
                     help="kafka broker, default: %d" % DEFAULT_BROKER)
 
 (options, args) = parser.parse_args()
-
+logging.basicConfig(level=logging.INFO)
 
 flair_sentiment = flair.models.TextClassifier.load('en-sentiment')
 s = flair.data.Sentence("This is a test and I am not happy.")
@@ -25,10 +25,11 @@ total_sentiment = s.labels
 logging.info('starting kafka consumer')
     consumer = kafka.KafkaConsumer(args.topic, bootstrap_servers=args.brokers)
     for msg in consumer:
-        if exit_event.is_set():
-            break
         try:
-            last_data(json.loads(str(msg.value, 'utf-8')))
+            message = json.loads(str(msg.value, 'utf-8'))
+            if message == 'exit':
+                break
+            logging.info(message)
         except Exception as e:
             logging.error(e.message)
     logging.info('exiting kafka consumer')

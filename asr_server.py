@@ -144,6 +144,9 @@ class SpeechHandler(BaseHTTPRequestHandler):
                 logging.debug ( "**")
                 logging.debug ( "*****************************************************************************")
 
+                if do_produce:
+                    state.producer.send(state.current_topic, json.dumps(hstr).encode('utf-8'))
+
                 # remove decoder from memory
                 states.pop(id)
 
@@ -152,9 +155,6 @@ class SpeechHandler(BaseHTTPRequestHandler):
             self.end_headers()
 
             hstr, confidence = state.decoder.get_decoded_string()
-
-            if do_produce:
-                state.producer.send(state.current_topic, json.dumps(hstr).encode('utf-8'))
 
             reply = {'hstr': hstr, 'confidence': confidence}
 
