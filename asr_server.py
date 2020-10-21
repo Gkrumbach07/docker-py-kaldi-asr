@@ -151,7 +151,7 @@ class SpeechHandler(BaseHTTPRequestHandler):
             self.send_header('Content-Type', 'application/json')
             self.end_headers()
 
-            hstr, confidence = decoder.get_decoded_string()
+            hstr, confidence = state.decoder.get_decoded_string()
 
             if do_produce:
                 state.producer.send(state.current_topic, json.dumps(hstr).encode('utf-8'))
