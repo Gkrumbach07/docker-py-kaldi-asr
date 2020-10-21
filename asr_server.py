@@ -61,13 +61,35 @@ PROC_TITLE        = 'asr_server'
 #
 # globals
 #
-# FIXME: get rid of these, implement proper session management
-#
+kaldi_model_dir = None
+kaldi_model = None
+states = None
 
-decoder = None # kaldi nnet3 online decoder
-current_broker = None
-current_topic = None
-producer = None
+class SessionState():
+    def __init__(self):
+        nnet3_model = KaldiNNet3OnlineModel (kaldi_model_dir, kaldi_model)
+        self.decoder = KaldiNNet3OnlineDecoder(nnet3_model)
+        self.current_broker = None
+        self.current_topic = None
+        self.producer = None
+
+    def updateProducer(new_broker, new_topic):
+        if self.current_broker != new_broker:
+            logging.info('Creating new Kafka producer\
+             %s with topic %s' % (new_broker, new_topic))
+
+            self.current_broker = new_broker
+            self.current_topic = new_topic
+            if self.producer != None:
+                self.producer.close()
+            self.producer = KafkaProducer(bootstrap_servers=self.current_broker)
+
+        elif self.current_topic != new_topic:
+            logging.info('Changing the Kafka topic to %s', new_topic)
+            self.current_topic = new_topic
+
+
+
 
 def mkdirs(path):
     try:
@@ -86,49 +108,44 @@ class SpeechHandler(BaseHTTPRequestHandler):
         self._set_headers()
 
     def do_POST(self):
-
-        global decoder, producer, current_broker, current_topic
-
         if self.path=="/decode":
 
             data = json.loads(self.rfile.read(int(self.headers.getheader('content-length'))))
 
-            # print data
-
+            # set vars
             audio       = data['audio']
             do_finalize = data['do_finalize']
             topic       = data['topic']
             broker      = data['broker']
+            id          = data['id']
+
+            # set session state
+            if id not in states:
+                states[id] = SessionState()
+            state = states[id]
+
+            # preform kafka setup
+            do_produce = topic != None and broker != None
+            if do_produce:
+                state.updateProducer(broker, topic)
 
             hstr        = ''
             confidence  = 0.0
 
-            do_produce = topic != None and broker != None
-
-            if do_produce and current_broker != broker:
-                logging.info('Creating new Kafka producer %s with topic %s' % (broker, topic))
-                current_broker = broker
-                current_topic = topic
-                if producer != None:
-                    producer.close()
-                producer = KafkaProducer(bootstrap_servers=current_broker)
-
-            elif do_produce and current_topic != topic:
-                logging.info('Changing the Kafka topic to %s', topic)
-                current_topic = topic
-
-
-            decoder.decode(SAMPLE_RATE, np.array(audio, dtype=np.float32), do_finalize)
+            state.decoder.decode(SAMPLE_RATE, np.array(audio, dtype=np.float32), do_finalize)
 
             if do_finalize:
 
-                hstr, confidence = decoder.get_decoded_string()
+                hstr, confidence = state.decoder.get_decoded_string()
 
                 logging.debug ( "*****************************************************************************")
                 logging.debug ( "**")
                 logging.debug ( "** %9.5f %s" % (confidence, hstr))
                 logging.debug ( "**")
                 logging.debug ( "*****************************************************************************")
+
+                # remove decoder from memory
+                states.pop(id)
 
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
@@ -137,7 +154,7 @@ class SpeechHandler(BaseHTTPRequestHandler):
             hstr, confidence = decoder.get_decoded_string()
 
             if do_produce:
-                producer.send(current_topic, json.dumps(hstr).encode('utf-8'))
+                state.producer.send(state.current_topic, json.dumps(hstr).encode('utf-8'))
 
             reply = {'hstr': hstr, 'confidence': confidence}
 
@@ -149,10 +166,7 @@ if __name__ == '__main__':
 
     setproctitle (PROC_TITLE)
 
-    #
     # commandline
-    #
-
     parser = OptionParser("usage: %prog [options] ")
 
     parser.add_option ("-v", "--verbose", action="store_true", dest="verbose",
@@ -180,20 +194,10 @@ if __name__ == '__main__':
     kaldi_model_dir = options.model_dir
     kaldi_model     = options.model
 
-    #
-    # setup kaldi decoder
-    #
+    # setup memory
+    states = {}
 
-    start_time = time()
-    logging.info('%s loading model from %s ...' % (kaldi_model, kaldi_model_dir))
-    nnet3_model = KaldiNNet3OnlineModel (kaldi_model_dir, kaldi_model)
-    logging.info('%s loading model... done. took %fs.' % (kaldi_model, time()-start_time))
-    decoder = KaldiNNet3OnlineDecoder (nnet3_model)
-
-    #
     # run HTTP server
-    #
-
     try:
         server = HTTPServer((options.host, options.port), SpeechHandler)
         logging.info('listening for HTTP requests on %s:%d' % (options.host, options.port))
