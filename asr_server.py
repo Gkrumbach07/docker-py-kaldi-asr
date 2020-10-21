@@ -67,8 +67,8 @@ states = None
 
 class SessionState():
     def __init__(self):
-        nnet3_model = KaldiNNet3OnlineModel (kaldi_model_dir, kaldi_model)
-        self.decoder = KaldiNNet3OnlineDecoder(nnet3_model)
+        self.model = KaldiNNet3OnlineModel (kaldi_model_dir, kaldi_model)
+        self.decoder = KaldiNNet3OnlineDecoder(self.model)
         self.current_broker = None
         self.current_topic = None
         self.producer = None
