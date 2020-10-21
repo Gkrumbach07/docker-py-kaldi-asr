@@ -24,12 +24,13 @@ total_sentiment = s.labels
 
 logging.info('starting kafka consumer')
     consumer = kafka.KafkaConsumer(args.topic, bootstrap_servers=args.brokers)
-    for msg in consumer:
-        try:
-            message = json.loads(str(msg.value, 'utf-8'))
-            if message == 'exit':
-                break
-            logging.info(message)
-        except Exception as e:
-            logging.error(e.message)
-    logging.info('exiting kafka consumer')
+    while(True):
+        for msg in consumer:
+            try:
+                message = json.loads(str(msg.value, 'utf-8'))
+                if message == 'exit':
+                    break
+                logging.info(message)
+            except Exception as e:
+                logging.error(e.message)
+        logging.info('exiting kafka consumer')
