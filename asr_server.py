@@ -208,3 +208,5 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         logging.error('^C received, shutting down the web server')
         server.socket.close()
+    except Exception as e:
+        logging.error(e)
