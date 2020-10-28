@@ -64,31 +64,7 @@ PROC_TITLE        = 'asr_server'
 kaldi_model_dir = None
 kaldi_model = None
 states = None
-
-class SessionState():
-    def __init__(self):
-        self.model = KaldiNNet3OnlineModel (kaldi_model_dir, kaldi_model)
-        self.decoder = KaldiNNet3OnlineDecoder(self.model)
-        self.current_broker = None
-        self.current_topic = None
-        self.producer = None
-
-    def updateProducer(self, new_broker, new_topic):
-        if self.current_broker != new_broker:
-            logging.info('Creating new Kafka producer\
-             %s with topic %s' % (new_broker, new_topic))
-
-            self.current_broker = new_broker
-            self.current_topic = new_topic
-            if self.producer != None:
-                self.producer.close()
-            self.producer = KafkaProducer(bootstrap_servers=self.current_broker)
-
-        elif self.current_topic != new_topic:
-            logging.info('Changing the Kafka topic to %s', new_topic)
-            self.current_topic = new_topic
-
-
+producers = None
 
 
 def mkdirs(path):
@@ -121,40 +97,35 @@ class SpeechHandler(BaseHTTPRequestHandler):
 
             # set session state
             if id not in states:
-                states[id] = SessionState()
-            state = states[id]
+                model = KaldiNNet3OnlineModel(kaldi_model_dir, kaldi_model)
+                states[id] = KaldiNNet3OnlineDecoder(model)
 
             # preform kafka setup
-            do_produce = topic != None and broker != None
-            if do_produce:
-                state.updateProducer(broker, topic)
+            if topic != None and broker != None:
+                if broker not in producers:
+                    producers[broker] = KafkaProducer(bootstrap_servers=broker)
 
             hstr        = ''
             confidence  = 0.0
 
-            state.decoder.decode(SAMPLE_RATE, np.array(audio, dtype=np.float32), do_finalize)
+            states[id].decode(SAMPLE_RATE, np.array(audio, dtype=np.float32), do_finalize)
 
             if do_finalize:
-
-                hstr, confidence = state.decoder.get_decoded_string()
-
-                logging.debug ( "*****************************************************************************")
-                logging.debug ( "**")
+                hstr, confidence = states[id].get_decoded_string()
                 logging.debug ( "** %9.5f %s" % (confidence, hstr))
-                logging.debug ( "**")
-                logging.debug ( "*****************************************************************************")
 
-                if do_produce:
-                    state.producer.send(state.current_topic, json.dumps(hstr).encode('utf-8'))
+                # if producing, then push to topic
+                if topic != None and broker != None:
+                    producers[broker].send(topic, json.dumps(hstr).encode('utf-8'))
 
                 # remove decoder from memory
-                states.pop(id)
+                states[id].pop(id)
 
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
             self.end_headers()
 
-            hstr, confidence = state.decoder.get_decoded_string()
+            hstr, confidence = states[id].get_decoded_string()
 
             reply = {'hstr': hstr, 'confidence': confidence}
 
@@ -196,6 +167,7 @@ if __name__ == '__main__':
 
     # setup memory
     states = {}
+    producers = {}
 
     # run HTTP server
     try:
