@@ -66,6 +66,10 @@ kaldi_model = None
 states = None
 producers = None
 
+class SessionState():
+    def __init__(self):
+        self.model = KaldiNNet3OnlineModel(kaldi_model_dir, kaldi_model)
+        self.decoder = KaldiNNet3OnlineDecoder(self.model)
 
 def mkdirs(path):
     try:
@@ -97,8 +101,7 @@ class SpeechHandler(BaseHTTPRequestHandler):
 
             # set session state
             if id not in states:
-                model = KaldiNNet3OnlineModel(kaldi_model_dir, kaldi_model)
-                states[id] = KaldiNNet3OnlineDecoder(model)
+                states[id] = SessionState()
 
             # preform kafka setup
             if topic != None and broker != None:
@@ -108,10 +111,10 @@ class SpeechHandler(BaseHTTPRequestHandler):
             hstr        = ''
             confidence  = 0.0
 
-            states[id].decode(SAMPLE_RATE, np.array(audio, dtype=np.float32), do_finalize)
+            states[id].decoder.decode(SAMPLE_RATE, np.array(audio, dtype=np.float32), do_finalize)
 
             if do_finalize:
-                hstr, confidence = states[id].get_decoded_string()
+                hstr, confidence = states[id].decoder.get_decoded_string()
                 logging.debug ( "** %9.5f %s" % (confidence, hstr))
 
                 # if producing, then push to topic
@@ -119,13 +122,13 @@ class SpeechHandler(BaseHTTPRequestHandler):
                     producers[broker].send(topic, json.dumps(hstr).encode('utf-8'))
 
                 # remove decoder from memory
-                states[id].pop(id)
+                states.pop(id)
 
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
             self.end_headers()
 
-            hstr, confidence = states[id].get_decoded_string()
+            hstr, confidence = states[id].decoder.get_decoded_string()
 
             reply = {'hstr': hstr, 'confidence': confidence}
 
