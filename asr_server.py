@@ -122,7 +122,7 @@ class SpeechHandler(BaseHTTPRequestHandler):
                     producers[broker].send(topic, json.dumps(hstr).encode('utf-8'))
 
                 # remove decoder from memory
-                states.pop(id)
+                #states.pop(id)
 
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
