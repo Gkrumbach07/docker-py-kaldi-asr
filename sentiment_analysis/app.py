@@ -18,14 +18,13 @@ def parse_args(parser):
 
 def main(args):
     flair_sentiment = flair.models.TextClassifier.load('en-sentiment')
-    s = flair.data.Sentence("This is a test and I am not happy.")
-    flair_sentiment.predict(s)
-    total_sentiment = s.labels
 
     consumer = KafkaConsumer(args.topic, bootstrap_servers=args.brokers)
     for msg in consumer:
-        out = msg.value if msg.value is not None else ""
-        logging.info('received: ' + str(msg.value, 'utf-8'))
+        if msg.value is not None:
+            s = flair.data.Sentence(msg.value)
+            flair_sentiment.predict(s)
+        logging.info('received: ' + str(s.labels))
     logging.info('exiting')
 
 
