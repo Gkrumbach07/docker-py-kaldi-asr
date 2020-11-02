@@ -22,7 +22,7 @@ def main(args):
     consumer = KafkaConsumer(args.topic, bootstrap_servers=args.brokers)
     for msg in consumer:
         if msg.value is not None:
-            s = flair.data.Sentence(msg.value)
+            s = flair.data.Sentence(msg.value.decode('utf-8'))
             flair_sentiment.predict(s)
         logging.info('received: ' + str(s.labels))
     logging.info('exiting')
