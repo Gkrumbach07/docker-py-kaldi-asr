@@ -80,17 +80,17 @@ def manage_states(delay):
           if states[key].last_used > time.time + delay:
               states.pop(key)
               logging.debug("Decoder '" + str(key) + "' was removed.")
-    for key in producers:
-        if producers[key].last_used > time.time + delay:
-            producers.pop(key)
-            logging.debug("Producer '" + str(key) + "' was removed.")
+      for key in producers:
+          if producers[key].last_used > time.time + delay:
+              producers.pop(key)
+              logging.debug("Producer '" + str(key) + "' was removed.")
 
 
 def mkdirs(path):
     try:
         os.makedirs(path)
     except OSError as exception:
-        if exception.errno != errno.EEXIST:
+        if exception.errno != errno.EEXIST:h
             raise
 
 class SpeechHandler(BaseHTTPRequestHandler):
@@ -198,7 +198,7 @@ if __name__ == '__main__':
     try:
         thread.start_new_thread( manage_states, 2)
     except:
-        logging.error("Could not start state manager thread.") 
+        logging.error("Could not start state manager thread.")
 
     # run HTTP server
     try:
