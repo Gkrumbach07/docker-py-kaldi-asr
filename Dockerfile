@@ -2,8 +2,6 @@ FROM debian:8
 
 ARG MAKE_JOBS=1
 
-sudo apt-get install 
-
 RUN apt-get update && apt-get install --no-install-recommends -y  \
     autoconf \
     automake \
