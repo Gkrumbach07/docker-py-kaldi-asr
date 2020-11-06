@@ -90,7 +90,7 @@ def mkdirs(path):
     try:
         os.makedirs(path)
     except OSError as exception:
-        if exception.errno != errno.EEXIST:h
+        if exception.errno != errno.EEXIST:
             raise
 
 class SpeechHandler(BaseHTTPRequestHandler):
