@@ -196,14 +196,15 @@ if __name__ == '__main__':
 
     # start manage thread
     try:
-        thread.start_new_thread(manage_states, (600, "Thread1"))
+        #thread.start_new_thread(manage_states, (600, "Thread1"))
+        logging.info("Starting state manager thread.")
     except Exception as e:
         logging.error(e)
 
     # run HTTP server
     try:
         server = HTTPServer((options.host, options.port), SpeechHandler)
-        logging.info('listening for HTTP requests on %s:%d' % (options.host, options.port))
+        logging.info('Listening for HTTP requests on %s:%d.' % (options.host, options.port))
 
         # wait forever for incoming http requests
         server.serve_forever()
