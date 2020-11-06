@@ -197,8 +197,8 @@ if __name__ == '__main__':
     # start manage thread
     try:
         thread.start_new_thread( manage_states, 2)
-    except:
-        logging.error("Could not start state manager thread.")
+    except Exception as e:
+        logging.error(e)
 
     # run HTTP server
     try:
