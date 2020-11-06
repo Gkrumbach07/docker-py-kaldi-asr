@@ -73,7 +73,7 @@ producers = None
 DecoderState = namedtuple('DecoderState',['decoder','last_used'])
 ProducerState = namedtuple('ProducerState',['producer','last_used'])
 
-def manage_states(delay):
+def manage_states(delay, threadName):
    while True:
       time.sleep(delay)
       for key in states:
@@ -196,7 +196,7 @@ if __name__ == '__main__':
 
     # start manage thread
     try:
-        thread.start_new_thread( manage_states, 2)
+        thread.start_new_thread(manage_states, (600, "Thread1"))
     except Exception as e:
         logging.error(e)
 
