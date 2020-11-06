@@ -37,7 +37,7 @@ import wave
 import errno
 import struct
 import thread
-import time
+from time import time, sleep
 from collections import namedtuple
 
 
