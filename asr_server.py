@@ -36,6 +36,10 @@ import datetime
 import wave
 import errno
 import struct
+import thread
+import time
+from collections import namedtuple
+
 
 from time import time
 from optparse import OptionParser
@@ -66,10 +70,21 @@ kaldi_model = None
 states = None
 producers = None
 
-class SessionState():
-    def __init__(self):
-        self.model = KaldiNNet3OnlineModel(kaldi_model_dir, kaldi_model)
-        self.decoder = KaldiNNet3OnlineDecoder(self.model)
+DecoderState = namedtuple('DecoderState',['decoder','last_used'])
+ProducerState = namedtuple('ProducerState',['producer','last_used'])
+
+def manage_states(delay):
+   while True:
+      time.sleep(delay)
+      for key in states:
+          if states[key].last_used > time.time + delay:
+              states.pop(key)
+              logging.debug("Decoder '" + str(key) + "' was removed.")
+    for key in producers:
+        if producers[key].last_used > time.time + delay:
+            producers.pop(key)
+            logging.debug("Producer '" + str(key) + "' was removed.")
+
 
 def mkdirs(path):
     try:
@@ -101,12 +116,20 @@ class SpeechHandler(BaseHTTPRequestHandler):
 
             # set session state
             if id not in states:
-                states[id] = SessionState()
+                states[id] = DecoderState(
+                    KaldiNNet3OnlineDecoder(KaldiNNet3OnlineModel(kaldi_model_dir, kaldi_model)),
+                    time.time())
+            else:
+                states[id].last_used = time.time()
 
             # preform kafka setup
             if topic != None and broker != None:
                 if broker not in producers:
-                    producers[broker] = KafkaProducer(bootstrap_servers=broker)
+                    producers[broker] = ProducerState(
+                        KafkaProducer(bootstrap_servers=broker),
+                        time.time())
+                else:
+                    producers[broker].last_used = time.time()
 
             hstr        = ''
             confidence  = 0.0
@@ -119,10 +142,9 @@ class SpeechHandler(BaseHTTPRequestHandler):
 
                 # if producing, then push to topic
                 if topic != None and broker != None:
-                    producers[broker].send(topic, json.dumps(hstr).encode('utf-8'))
+                    producers[broker].producer.send(topic, json.dumps(hstr).encode('utf-8'))
 
                 # remove decoder from memory
-                #states.pop(id)
 
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
@@ -171,6 +193,12 @@ if __name__ == '__main__':
     # setup memory
     states = {}
     producers = {}
+
+    # start manage thread
+    try:
+        thread.start_new_thread( manage_states, 2)
+    except:
+        logging.error("Could not start state manager thread.") 
 
     # run HTTP server
     try:
