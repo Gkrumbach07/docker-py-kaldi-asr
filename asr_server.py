@@ -75,13 +75,13 @@ ProducerState = namedtuple('ProducerState',['producer','last_used'])
 
 def manage_states(delay, threadName):
    while True:
-      time.sleep(delay)
+      sleep(delay)
       for key in states:
-          if states[key].last_used > time.time + delay:
+          if states[key].last_used > time() + delay:
               states.pop(key)
               logging.debug("Decoder '" + str(key) + "' was removed.")
       for key in producers:
-          if producers[key].last_used > time.time + delay:
+          if producers[key].last_used > time() + delay:
               producers.pop(key)
               logging.debug("Producer '" + str(key) + "' was removed.")
 
@@ -127,9 +127,9 @@ class SpeechHandler(BaseHTTPRequestHandler):
                 if broker not in producers:
                     producers[broker] = ProducerState(
                         KafkaProducer(bootstrap_servers=broker),
-                        time.time())
+                        time())
                 else:
-                    producers[broker].last_used = time.time()
+                    producers[broker].last_used = time()
 
             hstr        = ''
             confidence  = 0.0
