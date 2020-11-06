@@ -2,6 +2,8 @@ FROM debian:8
 
 ARG MAKE_JOBS=1
 
+sudo apt-get install 
+
 RUN apt-get update && apt-get install --no-install-recommends -y  \
     autoconf \
     automake \
@@ -16,6 +18,9 @@ RUN apt-get update && apt-get install --no-install-recommends -y  \
     python3 \
     python-pip \
     subversion \
+    unzip \
+    sox \
+    gfortran \
     wget \
     zlib1g-dev && \
     apt-get clean && \
