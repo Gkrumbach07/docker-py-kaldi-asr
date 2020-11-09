@@ -1,4 +1,4 @@
-FROM quay.io/gkrumbach07/kaldi-asr-base:latest
+FROM kaldiasr/kaldi:latest
              
 ARG DIR_PKGCONFIG=/usr/lib/pkgconfig
 
@@ -7,13 +7,13 @@ ENV LD_LIBRARY_PATH /opt/kaldi/tools/openfst/lib:/opt/kaldi/src/lib
 RUN mkdir -p ${DIR_PKGCONFIG}
 COPY kaldi-asr.pc ${DIR_PKGCONFIG}
 
-RUN yum install --no-install-recommends -y \
+RUN apt-get install --no-install-recommends -y \
             libatlas-base-dev \
             pkg-config \
             python-dev && \
-    yum clean && \
-    yum autoclean && \
-    yum autoremove -y
+    apt-get clean && \
+    apt-get autoclean && \
+    apt-get autoremove -y
 
 RUN pip install \
         cython==0.28.3 \
@@ -29,10 +29,10 @@ RUN pip install py-kaldi-asr==0.4.1
 
 COPY asr_server.py /opt/asr_server/
 
-RUN yum install xz-utils -y && \
-    yum clean && \
-    yum autoclean && \
-    yum autoremove -y
+RUN apt-get install xz-utils -y && \
+    apt-get clean && \
+    apt-get autoclean && \
+    apt-get autoremove -y
 
 ARG MODEL_NAME=kaldi-generic-en-tdnn_250-r20190609
 
