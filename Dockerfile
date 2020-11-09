@@ -16,7 +16,7 @@ RUN apt-get install --no-install-recommends -y \
     apt-get autoclean && \
     apt-get autoremove -y
 
-RUN pip install \
+RUN pip3 install \
         cython==0.28.3 \
         numpy==1.14.4 \
         pathlib2==2.3.2 \
@@ -26,7 +26,7 @@ RUN pip install \
         typing==3.6.4 \
         kafka
 
-RUN pip install py-kaldi-asr==0.4.1
+RUN pip3 install py-kaldi-asr==0.4.1
 
 COPY asr_server.py /opt/asr_server/
 
