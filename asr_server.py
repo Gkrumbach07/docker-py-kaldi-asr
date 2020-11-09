@@ -118,7 +118,7 @@ class SpeechHandler(BaseHTTPRequestHandler):
             if id not in states:
                 states[id] = DecoderState(
                     KaldiNNet3OnlineDecoder(KaldiNNet3OnlineModel(kaldi_model_dir, kaldi_model)),
-                    time.time())
+                    time())
             else:
                 states[id].last_used = time.time()
 
