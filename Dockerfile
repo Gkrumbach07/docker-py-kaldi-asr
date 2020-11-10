@@ -16,7 +16,9 @@ RUN apt-get install --no-install-recommends -y \
     apt-get autoclean && \
     apt-get autoremove -y
 
-RUN pip3 install wheel setuptools
+RUN pip3 install setuptools
+
+RUN pip3 install setproctitle
 
 RUN pip3 install \
         cython==0.28.3 \
@@ -24,7 +26,6 @@ RUN pip3 install \
         pathlib2==2.3.2 \
         plac==0.9.6 \
         python-json-logger==0.1.9 \
-        setproctitle \
         typing==3.6.4 \
         kafka
 
