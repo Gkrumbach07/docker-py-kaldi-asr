@@ -11,7 +11,7 @@ RUN apt-get install --no-install-recommends -y \
             libatlas-base-dev \
             pkg-config \
             python3-pip \
-            python-dev && \
+            python3-dev && \
     apt-get clean && \
     apt-get autoclean && \
     apt-get autoremove -y
