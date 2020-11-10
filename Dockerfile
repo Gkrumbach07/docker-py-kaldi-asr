@@ -16,7 +16,7 @@ RUN apt-get install --no-install-recommends -y \
     apt-get autoclean && \
     apt-get autoremove -y
 
-RUN pip3 install setuptools
+RUN pip3 install wheel
 
 RUN pip3 install \
         cython==0.28.3 \
