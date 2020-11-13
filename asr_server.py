@@ -49,6 +49,7 @@ def decode():
         broker      = request.json['broker']
         id          = request.json['id']
 
+        logging.info(request.json)
     except Exception as e:
         logging.error(e)
         return {'hstr': 'load error', 'confidence': 1}
