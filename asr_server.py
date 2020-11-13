@@ -50,7 +50,7 @@ def decode():
         broker      = request.form['broker']
         id          = request.form['id']
 
-        logger.info(audio)
+        logging.info(audio)
 
     except Exception as e:
         logging.error(e)
