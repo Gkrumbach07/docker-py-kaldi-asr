@@ -77,6 +77,7 @@ try:
     last_phrase = ""
     while True:
         samples = rec.get_samples().tolist()
+        print(samples)
 
         finalize = False
         if longest_streak > 3:
