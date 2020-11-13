@@ -83,11 +83,7 @@ def decode():
     hstr        = ''
     confidence  = 0.0
 
-    try:
-        states[id].decoder.decode(SAMPLE_RATE, np.array(audio, dtype=np.float32), do_finalize)
-    except Exception as e:
-        logging.error(e)
-        return {'hstr': 'decoder error', 'confidence': 1}
+    states[id].decoder.decode(SAMPLE_RATE, np.array(audio, dtype=np.float32), do_finalize)
 
     if do_finalize:
         hstr, confidence = states[id].decoder.get_decoded_string()
