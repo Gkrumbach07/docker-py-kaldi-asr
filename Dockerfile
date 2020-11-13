@@ -1,6 +1,4 @@
-#FROM kaldiasr/kaldi:latest
-FROM quay.io/mpuels/docker-kaldi-asr:2018-06-21
-
+#FROM quay.io/mpuels/docker-kaldi-asr:2018-06-21
 
 ARG DIR_PKGCONFIG=/usr/lib/pkgconfig
 
@@ -12,7 +10,6 @@ COPY kaldi-asr.pc ${DIR_PKGCONFIG}
 RUN apt-get install --no-install-recommends -y \
             libatlas-base-dev \
             pkg-config \
-            python-pip \
             python-dev && \
     apt-get clean && \
     apt-get autoclean && \
@@ -24,6 +21,7 @@ RUN pip install \
         pathlib2==2.3.2 \
         plac==0.9.6 \
         python-json-logger==0.1.9 \
+        setproctitle==1.1.10 \
         typing==3.6.4 \
         kafka \
         flask
