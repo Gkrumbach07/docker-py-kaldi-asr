@@ -6,8 +6,7 @@ from time import time, sleep
 from collections import namedtuple
 from optparse import OptionParser
 from setproctitle import setproctitle
-from flask import Flask
-import request
+from flask import Flask, request
 
 from kaldiasr.nnet3 import KaldiNNet3OnlineModel, KaldiNNet3OnlineDecoder
 import numpy as np

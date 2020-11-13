@@ -27,9 +27,8 @@ RUN pip3 install \
         python-json-logger==0.1.9 \
         typing==3.6.4 \
         kafka \
-        flask \
-        request
-
+        flask
+        
 RUN pip3 install py-kaldi-asr==0.4.1
 
 COPY asr_server.py /opt/asr_server/
