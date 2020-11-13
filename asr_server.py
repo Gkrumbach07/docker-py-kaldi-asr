@@ -53,43 +53,42 @@ def decode():
     except Exception as e:
         logging.error(e)
 
+    # set session state
+    if id not in states:
+        states[id] = DecoderState(
+            KaldiNNet3OnlineDecoder(KaldiNNet3OnlineModel(kaldi_model_dir, kaldi_model)),
+            time())
+    else:
+        states[id] = states[id]._replace(last_used=time())
 
-    try:
-        # set session state
-        if id not in states:
-            states[id] = DecoderState(
-                KaldiNNet3OnlineDecoder(KaldiNNet3OnlineModel(kaldi_model_dir, kaldi_model)),
+    # preform kafka setup
+    if topic != None and broker != None:
+        if broker not in producers:
+            producers[broker] = ProducerState(
+                KafkaProducer(bootstrap_servers=broker),
                 time())
         else:
-            states[id] = states[id]._replace(last_used=time())
+            producers[broker] = producers[broker]._replace(last_used=time())
 
-        # preform kafka setup
-        if topic != None and broker != None:
-            if broker not in producers:
-                producers[broker] = ProducerState(
-                    KafkaProducer(bootstrap_servers=broker),
-                    time())
-            else:
-                producers[broker] = producers[broker]._replace(last_used=time())
+    hstr        = ''
+    confidence  = 0.0
 
-        hstr        = ''
-        confidence  = 0.0
-
+    try:
         states[id].decoder.decode(SAMPLE_RATE, np.array(audio, dtype=np.float32), do_finalize)
-
-        if do_finalize:
-            hstr, confidence = states[id].decoder.get_decoded_string()
-            logging.debug ( "** %9.5f %s" % (confidence, hstr))
-
-            # if producing, then push to topic
-            if topic != None and broker != None:
-                producers[broker].producer.send(topic, json.dumps(hstr).encode('utf-8'))
-
-        hstr, confidence = states[id].decoder.get_decoded_string()
-
-        return {'hstr': hstr, 'confidence': confidence}
     except Exception as e:
-        logging.error(e)
+        logging.error("Decoder Error: " + str(e))
+
+    if do_finalize:
+        hstr, confidence = states[id].decoder.get_decoded_string()
+        logging.debug ( "** %9.5f %s" % (confidence, hstr))
+
+        # if producing, then push to topic
+        if topic != None and broker != None:
+            producers[broker].producer.send(topic, json.dumps(hstr).encode('utf-8'))
+
+    hstr, confidence = states[id].decoder.get_decoded_string()
+
+    return {'hstr': hstr, 'confidence': confidence}
 
 def manage_states(delay, threadName):
    while True:
