@@ -5,7 +5,6 @@ import json
 from time import time, sleep
 from collections import namedtuple
 from optparse import OptionParser
-from setproctitle import setproctitle
 from flask import Flask, request
 
 from kaldiasr.nnet3 import KaldiNNet3OnlineModel, KaldiNNet3OnlineDecoder
@@ -112,9 +111,6 @@ def mkdirs(path):
 
 
 if __name__ == '__main__':
-
-    setproctitle (PROC_TITLE)
-
     # commandline
     parser = OptionParser("usage: %prog [options] ")
 

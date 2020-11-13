@@ -18,28 +18,11 @@ RUN apt-get install --no-install-recommends -y \
     apt-get autoclean && \
     apt-get autoremove -y
 
-RUN pip3 install setuptools
-
-RUN pip3 install \
-        cython==0.28.3 \
-        numpy==1.14.4 \
-        pathlib2==2.3.2 \
-        plac==0.9.6 \
-        setproctitle \
-        python-json-logger==0.1.9 \
-        typing==3.6.4 \
-        kafka \
-        flask
-
-RUN pip3 install py-kaldi-asr==0.4.1
-
-
 RUN pip install \
         cython==0.28.3 \
         numpy==1.14.4 \
         pathlib2==2.3.2 \
         plac==0.9.6 \
-        setproctitle \
         python-json-logger==0.1.9 \
         typing==3.6.4 \
         kafka \
