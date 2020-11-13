@@ -51,6 +51,7 @@ def decode():
 
     except Exception as e:
         logging.error(e)
+        return {'hstr': 'load error', 'confidence': 1}
 
     # set session state
     if id not in states:
@@ -76,6 +77,7 @@ def decode():
         states[id].decoder.decode(SAMPLE_RATE, np.array(audio, dtype=np.float32), do_finalize)
     except Exception as e:
         logging.error(e)
+        return {'hstr': 'decoder error', 'confidence': 1}
 
     if do_finalize:
         hstr, confidence = states[id].decoder.get_decoded_string()
