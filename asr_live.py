@@ -90,7 +90,7 @@ try:
                 'broker'     : broker,
                 'id'         : id}
 
-        response = requests.post(url, data=json.dumps(data))
+        response = requests.post(url, data=data)
         if not response.ok:
             logging.error(response.text)
         else:

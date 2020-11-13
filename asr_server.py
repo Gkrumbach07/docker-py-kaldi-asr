@@ -49,8 +49,10 @@ def decode():
         topic       = request.form['topic']
         broker      = request.form['broker']
         id          = request.form['id']
+
+        logging.info(audio)
     except Exception as e:
-        logging.warning(e)
+        logging.error(e)
         return
 
     # set session state
