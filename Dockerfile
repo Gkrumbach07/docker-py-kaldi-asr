@@ -33,6 +33,22 @@ RUN pip3 install \
 
 RUN pip3 install py-kaldi-asr==0.4.1
 
+
+RUN pip install setuptools
+
+RUN pip install \
+        cython==0.28.3 \
+        numpy==1.14.4 \
+        pathlib2==2.3.2 \
+        plac==0.9.6 \
+        setproctitle \
+        python-json-logger==0.1.9 \
+        typing==3.6.4 \
+        kafka \
+        flask
+
+RUN pip install py-kaldi-asr==0.4.1
+
 COPY asr_server.py /opt/asr_server/
 
 RUN apt-get install xz-utils -y && \
