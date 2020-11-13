@@ -1,5 +1,5 @@
 FROM quay.io/gkrumbach07/kaldi-asr-base:latest
-             
+
 ARG DIR_PKGCONFIG=/usr/lib/pkgconfig
 
 ENV LD_LIBRARY_PATH /opt/kaldi/tools/openfst/lib:/opt/kaldi/src/lib
@@ -23,7 +23,8 @@ RUN pip install \
         python-json-logger==0.1.9 \
         setproctitle==1.1.10 \
         typing==3.6.4 \
-        kafka
+        kafka \
+        flask \
 
 RUN pip install py-kaldi-asr==0.4.1
 

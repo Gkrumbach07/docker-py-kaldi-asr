@@ -1,50 +1,13 @@
-
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-#
-# Copyright 2017 Guenter Bartsch
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Lesser General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Lesser General Public License for more details.
-#
-# You should have received a copy of the GNU Lesser General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#
-# simple speech recognition http api server
-#
-# WARNING:
-#     right now, this supports a single client only - needs a lot more work
-#     to become (at least somewhat) scalable
-
-
-
 import os
-import sys
 import logging
-import traceback
 import json
-import datetime
-import wave
-import errno
-import struct
 import _thread
 from time import time, sleep
 from collections import namedtuple
-
-
-from time import time
 from optparse import OptionParser
 from setproctitle import setproctitle
-from BaseHTTPServer import BaseHTTPRequestHandler,HTTPServer
+from flask import Flask
+import request
 
 from kaldiasr.nnet3 import KaldiNNet3OnlineModel, KaldiNNet3OnlineDecoder
 import numpy as np
@@ -62,16 +25,69 @@ SAMPLE_RATE       = 16000
 
 PROC_TITLE        = 'asr_server'
 
-#
 # globals
-#
 kaldi_model_dir = None
 kaldi_model = None
 states = None
 producers = None
 
 DecoderState = namedtuple('DecoderState',['decoder','last_used'])
-ProducerState = namedtuple('ProducerState',['producer','last_used'])
+ProducerState = namedtuple('ProducerState',['producer' 'client_id','last_used'])
+
+app = Flask(__name__)
+
+
+@app.route('/')
+def info():
+    return 'Use /decode to decode audio.'
+
+
+@app.route('/decode', methods=['POST'])
+def decode():
+    try:
+        audio       = request.form['audio']
+        do_finalize = request.form['do_finalize']
+        topic       = request.form['topic']
+        broker      = request.form['broker']
+        id          = request.form['id']
+    except Exception as e:
+        logging.warning(e)
+        return
+
+    # set session state
+    if id not in states:
+        states[id] = DecoderState(
+            KaldiNNet3OnlineDecoder(KaldiNNet3OnlineModel(kaldi_model_dir, kaldi_model)),
+            time())
+    else:
+        states[id].last_used = time.time()
+
+    # preform kafka setup
+    if topic != None and broker != None:
+        if broker not in producers:
+            producers[broker] = ProducerState(
+                KafkaProducer(bootstrap_servers=broker),
+                time())
+        else:
+            producers[broker].last_used = time()
+
+    hstr        = ''
+    confidence  = 0.0
+
+    states[id].decoder.decode(SAMPLE_RATE, np.array(audio, dtype=np.float32), do_finalize)
+
+    if do_finalize:
+        hstr, confidence = states[id].decoder.get_decoded_string()
+        logging.debug ( "** %9.5f %s" % (confidence, hstr))
+
+        # if producing, then push to topic
+        if topic != None and broker != None:
+            producers[broker].producer.send(topic, json.dumps(hstr).encode('utf-8'))
+
+    hstr, confidence = states[id].decoder.get_decoded_string()
+
+    return {'hstr': hstr, 'confidence': confidence}
+
 
 def manage_states(delay, threadName):
    while True:
@@ -92,6 +108,7 @@ def mkdirs(path):
     except OSError as exception:
         if exception.errno != errno.EEXIST:
             raise
+
 
 class SpeechHandler(BaseHTTPRequestHandler):
 
@@ -203,14 +220,6 @@ if __name__ == '__main__':
 
     # run HTTP server
     try:
-        server = HTTPServer((options.host, options.port), SpeechHandler)
-        logging.info('Listening for HTTP requests on %s:%d.' % (options.host, options.port))
-
-        # wait forever for incoming http requests
-        server.serve_forever()
-
-    except KeyboardInterrupt:
-        logging.error('^C received, shutting down the web server')
-        server.socket.close()
+        app.run(host="0.0.0.0", port=8080)
     except Exception as e:
         logging.error(e)
