@@ -49,6 +49,7 @@ def decode():
         topic       = request.json['topic']
         broker      = request.json['broker']
         id          = request.json['id']
+
     except Exception as e:
         logging.error(e)
 

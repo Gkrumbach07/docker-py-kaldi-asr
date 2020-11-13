@@ -30,7 +30,7 @@ RUN pip3 install \
         typing==3.6.4 \
         kafka \
         flask
-        
+
 RUN pip3 install py-kaldi-asr==0.4.1
 
 COPY asr_server.py /opt/asr_server/
@@ -51,4 +51,4 @@ RUN wget -q http://goofy.zamia.org/zamia-speech/asr-models/${MODEL_NAME}.tar.xz 
 EXPOSE 8080
 
 WORKDIR /opt/asr_server
-CMD ["python3", "asr_server.py"]
+CMD ["python", "asr_server.py"]
