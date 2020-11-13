@@ -66,10 +66,7 @@ def decode():
     # preform kafka setup
     if topic != None and broker != None:
         if broker not in producers:
-            producers[broker] = ProducerState(
-                KafkaProducer(bootstrap_servers=broker),
-                id,
-                time())
+            producers[broker] = ProducerState(KafkaProducer(bootstrap_servers=broker), id, time())
         else:
             producers[broker] = producers[broker]._replace(last_used=time())
 
