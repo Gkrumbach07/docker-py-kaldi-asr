@@ -61,7 +61,7 @@ def decode():
                 KaldiNNet3OnlineDecoder(KaldiNNet3OnlineModel(kaldi_model_dir, kaldi_model)),
                 time())
         else:
-            states[id].last_used = time()
+            states[id] = states[id]._replace(last_used=time())
 
         # preform kafka setup
         if topic != None and broker != None:
@@ -70,7 +70,7 @@ def decode():
                     KafkaProducer(bootstrap_servers=broker),
                     time())
             else:
-                producers[broker].last_used = time()
+                producers[broker] = producers[broker]._replace(last_used=time())
 
         hstr        = ''
         confidence  = 0.0
