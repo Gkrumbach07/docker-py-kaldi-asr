@@ -34,8 +34,6 @@ RUN pip3 install \
 RUN pip3 install py-kaldi-asr==0.4.1
 
 
-RUN pip install setuptools
-
 RUN pip install \
         cython==0.28.3 \
         numpy==1.14.4 \
