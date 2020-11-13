@@ -49,9 +49,6 @@ def decode():
         topic       = request.json['topic']
         broker      = request.json['broker']
         id          = request.json['id']
-
-        logging.info(audio)
-
     except Exception as e:
         logging.error(e)
 
@@ -78,7 +75,7 @@ def decode():
     try:
         states[id].decoder.decode(SAMPLE_RATE, np.array(audio, dtype=np.float32), do_finalize)
     except Exception as e:
-        logging.error("Decoder Error: " + str(e))
+        logging.error(e)
 
     if do_finalize:
         hstr, confidence = states[id].decoder.get_decoded_string()
