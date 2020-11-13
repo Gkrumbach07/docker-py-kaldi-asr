@@ -50,6 +50,8 @@ def decode():
         broker      = request.form['broker']
         id          = request.form['id']
 
+        logger.info(audio)
+
     except Exception as e:
         logging.error(e)
 
@@ -66,6 +68,7 @@ def decode():
         if broker not in producers:
             producers[broker] = ProducerState(
                 KafkaProducer(bootstrap_servers=broker),
+                id,
                 time())
         else:
             producers[broker] = producers[broker]._replace(last_used=time())
