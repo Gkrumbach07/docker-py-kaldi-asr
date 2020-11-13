@@ -28,7 +28,7 @@ RUN pip3 install \
         typing==3.6.4 \
         kafka \
         flask \
-        requests
+        request
 
 RUN pip3 install py-kaldi-asr==0.4.1
 
