@@ -29,7 +29,13 @@ kaldi_model = None
 states = None
 producers = None
 
-DecoderState = namedtuple('DecoderState',['decoder','last_used'])
+class DecoderState():
+    def __init__(self):
+        self.model = KaldiNNet3OnlineModel(kaldi_model_dir, kaldi_model)
+        self.decoder = KaldiNNet3OnlineDecoder(self.model)
+        self.last_used = time()
+
+#DecoderState = namedtuple('DecoderState',['decoder', 'model', 'last_used'])
 ProducerState = namedtuple('ProducerState',['producer', 'client_id','last_used'])
 
 app = Flask(__name__)
@@ -56,11 +62,14 @@ def decode():
 
     # set session state
     if id not in states:
-        states[id] = DecoderState(
-            KaldiNNet3OnlineDecoder(KaldiNNet3OnlineModel(kaldi_model_dir, kaldi_model)),
-            time())
-    else:
-        states[id] = states[id]._replace(last_used=time())
+        states[id] = DecoderState()
+        # states[id] = DecoderState(
+        #     KaldiNNet3OnlineDecoder(KaldiNNet3OnlineModel(kaldi_model_dir, kaldi_model)),
+        #     KaldiNNet3OnlineModel(kaldi_model_dir, kaldi_model),
+        #     time())
+    #else:
+        #states[id] = states[id]._replace(last_used=time())
+
 
     # preform kafka setup
     if topic != None and broker != None:
