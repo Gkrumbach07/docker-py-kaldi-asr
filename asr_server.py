@@ -44,11 +44,11 @@ def info():
 @app.route('/decode', methods=['POST'])
 def decode():
     try:
-        audio       = request.form['audio']
-        do_finalize = request.form['do_finalize']
-        topic       = request.form['topic']
-        broker      = request.form['broker']
-        id          = request.form['id']
+        audio       = request.json['audio']
+        do_finalize = request.json['do_finalize']
+        topic       = request.json['topic']
+        broker      = request.json['broker']
+        id          = request.json['id']
 
         logging.info(audio)
 
