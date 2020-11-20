@@ -1,6 +1,6 @@
 #FROM kaldiasr/kaldi:latest
-#FROM quay.io/mpuels/docker-kaldi-asr:2018-06-21
-FROM quay.io/gkrumbach07/kaldi-asr-base:latest
+FROM quay.io/mpuels/docker-kaldi-asr:2018-06-21
+#FROM quay.io/gkrumbach07/kaldi-asr-base:latest
 
 
 ARG DIR_PKGCONFIG=/usr/lib/pkgconfig
