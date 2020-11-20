@@ -21,21 +21,21 @@ DEFAULT_VF_LOGIN  = 'anonymous'
 DEFAULT_REC_DIR   = '/opt/data/recordings'
 SAMPLE_RATE       = 16000
 
-PROC_TITLE        = 'asr_server'
-
 # globals
 kaldi_model_dir = None
 kaldi_model = None
 states = None
-producers = None
+producer = None
+topic = None
+
+app = Flask(__name__)
+
 
 class DecoderState():
     def __init__(self):
         self.model = KaldiNNet3OnlineModel(kaldi_model_dir, kaldi_model)
         self.decoder = KaldiNNet3OnlineDecoder(self.model)
         self.last_used = time()
-
-ProducerState = namedtuple('ProducerState',['producer', 'client_id','last_used'])
 
 
 def manage_states(delay, threadName):
@@ -45,13 +45,7 @@ def manage_states(delay, threadName):
           if states[key].last_used > time() + delay:
               states.pop(key)
               logging.debug("Decoder '" + str(key) + "' was removed.")
-      for key in producers:
-          if producers[key].last_used > time() + delay:
-              producers.pop(key)
-              logging.debug("Producer '" + str(key) + "' was removed.")
 
-
-app = Flask(__name__)
 
 @app.route('/')
 def info():
@@ -63,8 +57,6 @@ def decode():
     try:
         audio       = request.json['audio']
         do_finalize = request.json['do_finalize']
-        topic       = request.json['topic']
-        broker      = request.json['broker']
         id          = request.json['id']
     except Exception as e:
         logging.error(e)
@@ -76,16 +68,6 @@ def decode():
     else:
         states[id].last_used = time()
 
-
-    # preform kafka setup
-    if topic != None and broker != None:
-        if broker not in producers:
-            producers[broker] = ProducerState(KafkaProducer(bootstrap_servers=broker),
-             id,
-             time())
-        else:
-            producers[broker] = producers[broker]._replace(last_used=time())
-
     hstr        = ''
     confidence  = 0.0
 
@@ -96,20 +78,12 @@ def decode():
         logging.debug ( "** %9.5f %s" % (confidence, hstr))
 
         # if producing, then push to topic
-        if topic != None and broker != None:
-            producers[broker].producer.send(topic, json.dumps(hstr).encode('utf-8'))
+        if producer != None:
+            producer.send(topic, json.dumps(hstr).encode('utf-8'))
 
     hstr, confidence = states[id].decoder.get_decoded_string()
 
     return {'hstr': hstr, 'confidence': confidence}
-
-
-def mkdirs(path):
-    try:
-        os.makedirs(path)
-    except OSError as exception:
-        if exception.errno != errno.EEXIST:
-            raise
 
 
 if __name__ == '__main__':
@@ -141,9 +115,14 @@ if __name__ == '__main__':
     kaldi_model_dir = options.model_dir
     kaldi_model     = options.model
 
-    # setup memory
+    # setup state memmory
     states = {}
-    producers = {}
+
+    #start producer
+    broker = os.getenv('KAFKA_BROKER', None)
+    topic = os.getenv('KAFKA_TOPIC', None)
+    if topic != None and broker != None:
+        producer = KafkaProducer(bootstrap_servers=broker)
 
     # start manage thread
     try:
