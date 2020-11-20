@@ -18,6 +18,8 @@ RUN apt-get install --no-install-recommends -y \
     apt-get clean && \
     apt-get autoclean && \
     apt-get autoremove -y
+    
+RUN pip install setuptools
 
 RUN pip install \
         cython==0.28.3 \
