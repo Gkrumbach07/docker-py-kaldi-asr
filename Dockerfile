@@ -13,13 +13,13 @@ COPY kaldi-asr.pc ${DIR_PKGCONFIG}
 RUN apt-get install --no-install-recommends -y \
             libatlas-base-dev \
             pkg-config \
-            python3-pip \
-            python3-dev && \
+            python-pip \
+            python-dev && \
     apt-get clean && \
     apt-get autoclean && \
     apt-get autoremove -y
 
-RUN pip3 install \
+RUN pip install \
         cython==0.28.3 \
         numpy==1.14.4 \
         pathlib2==2.3.2 \
@@ -29,7 +29,7 @@ RUN pip3 install \
         kafka \
         flask
 
-RUN pip3 install py-kaldi-asr==0.4.1
+RUN pip install py-kaldi-asr==0.4.1
 
 COPY app.py /opt/asr_server/
 
@@ -49,4 +49,4 @@ RUN wget -q http://goofy.zamia.org/zamia-speech/asr-models/${MODEL_NAME}.tar.xz 
 EXPOSE 8080
 
 WORKDIR /opt/asr_server
-CMD ["python3", "app.py"]
+CMD ["python", "app.py"]
