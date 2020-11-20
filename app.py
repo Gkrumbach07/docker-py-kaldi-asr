@@ -1,7 +1,7 @@
 import os
 import logging
 import json
-#import _thread
+import _thread
 from time import time, sleep
 from collections import namedtuple
 from optparse import OptionParser
@@ -35,11 +35,23 @@ class DecoderState():
         self.decoder = KaldiNNet3OnlineDecoder(self.model)
         self.last_used = time()
 
-#DecoderState = namedtuple('DecoderState',['decoder', 'model', 'last_used'])
 ProducerState = namedtuple('ProducerState',['producer', 'client_id','last_used'])
 
-app = Flask(__name__)
 
+def manage_states(delay, threadName):
+   while True:
+      sleep(delay)
+      for key in states:
+          if states[key].last_used > time() + delay:
+              states.pop(key)
+              logging.debug("Decoder '" + str(key) + "' was removed.")
+      for key in producers:
+          if producers[key].last_used > time() + delay:
+              producers.pop(key)
+              logging.debug("Producer '" + str(key) + "' was removed.")
+
+
+app = Flask(__name__)
 
 @app.route('/')
 def info():
@@ -61,12 +73,8 @@ def decode():
     # set session state
     if id not in states:
         states[id] = DecoderState()
-        # states[id] = DecoderState(
-        #     KaldiNNet3OnlineDecoder(KaldiNNet3OnlineModel(kaldi_model_dir, kaldi_model)),
-        #     KaldiNNet3OnlineModel(kaldi_model_dir, kaldi_model),
-        #     time())
-    #else:
-        #states[id] = states[id]._replace(last_used=time())
+    else:
+        states[id].last_used = time()
 
 
     # preform kafka setup
@@ -94,18 +102,6 @@ def decode():
     hstr, confidence = states[id].decoder.get_decoded_string()
 
     return {'hstr': hstr, 'confidence': confidence}
-
-def manage_states(delay, threadName):
-   while True:
-      sleep(delay)
-      for key in states:
-          if states[key].last_used > time() + delay:
-              states.pop(key)
-              logging.debug("Decoder '" + str(key) + "' was removed.")
-      for key in producers:
-          if producers[key].last_used > time() + delay:
-              producers.pop(key)
-              logging.debug("Producer '" + str(key) + "' was removed.")
 
 
 def mkdirs(path):
@@ -151,7 +147,7 @@ if __name__ == '__main__':
 
     # start manage thread
     try:
-        #_thread.start_new_thread(manage_states, (600, "Thread1"))
+        _thread.start_new_thread(manage_states, (600, "Thread1"))
         logging.info("Starting state manager thread.")
     except Exception as e:
         logging.error(e)
