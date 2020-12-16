@@ -17,9 +17,17 @@ def parse_args(parser):
 
 
 def main(args):
-    flair_sentiment = flair.models.TextClassifier.load('en-sentiment')
+    try:
+        flair_sentiment = flair.models.TextClassifier.load('en-sentiment')
+    except Exception as e:
+        logging.error("Could not load Flair model.")
+        raise e
 
-    consumer = KafkaConsumer(args.topic, bootstrap_servers=args.brokers)
+    try:
+        consumer = KafkaConsumer(args.topic, bootstrap_servers=args.brokers)
+    except Exception as e:
+        logging.error("There is no broker named " + args.brokers + " with topic "+ args.topic +" avaiable.")
+        raise e
     for msg in consumer:
         if msg.value is not None:
             s = flair.data.Sentence(msg.value.decode('utf-8'))
