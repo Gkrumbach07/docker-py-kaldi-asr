@@ -11,6 +11,8 @@ ENV LD_LIBRARY_PATH /opt/kaldi/tools/openfst/lib:/opt/kaldi/src/lib
 RUN mkdir -p ${DIR_PKGCONFIG}
 COPY kaldi-asr.pc ${DIR_PKGCONFIG}
 
+RUN apt-get update
+
 RUN apt-get install --no-install-recommends -y \
             libatlas-base-dev \
             pkg-config \
