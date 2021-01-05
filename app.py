@@ -1,7 +1,7 @@
 import os
 import logging
 import json
-import _thread
+import thread
 from time import time, sleep
 from collections import namedtuple
 from optparse import OptionParser
@@ -126,7 +126,7 @@ if __name__ == '__main__':
 
     # start manage thread
     try:
-        _thread.start_new_thread(manage_states, (600, "Thread1"))
+        thread.start_new_thread(manage_states, (600, "Thread1"))
         logging.info("Starting state manager thread.")
     except Exception as e:
         logging.error(e)
