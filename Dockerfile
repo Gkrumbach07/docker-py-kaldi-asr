@@ -32,7 +32,7 @@ RUN pip install \
         kafka \
         flask
 
-RUN pip install py-kaldi-asr==0.4.1
+#RUN pip install py-kaldi-asr==0.4.1
 
 COPY app.py /opt/asr_server/
 
