@@ -16,7 +16,6 @@ RUN apt-get update
 RUN apt-get install --no-install-recommends -y \
             libatlas-base-dev \
             pkg-config \
-            mkl \
             python3-pip \
             python3-dev && \
     apt-get clean && \
