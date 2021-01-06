@@ -128,7 +128,7 @@ if __name__ == '__main__':
 
     # start manage thread
     try:
-        _thread.start_new_thread(manage_states, (600, "Thread1"))
+        #_thread.start_new_thread(manage_states, (600, "Thread1"))
         logging.info("Starting state manager thread.")
     except Exception as e:
         logging.error(e)
