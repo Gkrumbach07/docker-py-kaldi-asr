@@ -55,4 +55,4 @@ RUN wget -q http://goofy.zamia.org/zamia-speech/asr-models/${MODEL_NAME}.tar.xz 
 EXPOSE 8080
 
 WORKDIR /opt/asr_server
-CMD ["python3", "profileTest.py"]
+CMD ["python3", "app.py"]
