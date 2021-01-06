@@ -34,6 +34,8 @@ RUN pip3 install \
 
 RUN pip3 install py-kaldi-asr==0.4.1
 
+RUN pip3 Werkzeug==0.16.0
+
 COPY app.py /opt/asr_server/
 COPY profile.py /opt/asr_server/
 
