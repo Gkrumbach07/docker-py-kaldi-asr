@@ -37,7 +37,7 @@ RUN pip3 install py-kaldi-asr==0.4.1
 RUN pip3 install Werkzeug==0.16.0
 
 COPY app.py /opt/asr_server/
-COPY profile.py /opt/asr_server/
+COPY profileTest.py /opt/asr_server/
 
 RUN apt-get install xz-utils -y && \
     apt-get clean && \
@@ -55,4 +55,4 @@ RUN wget -q http://goofy.zamia.org/zamia-speech/asr-models/${MODEL_NAME}.tar.xz 
 EXPOSE 8080
 
 WORKDIR /opt/asr_server
-CMD ["python3", "profile.py"]
+CMD ["python3", "profileTest.py"]
