@@ -31,9 +31,6 @@ topic = None
 app = Flask(__name__)
 
 
-import cProfile
-cProfile.run('decode()')
-
 class DecoderState():
     def __init__(self):
         self.model = KaldiNNet3OnlineModel(kaldi_model_dir, kaldi_model)
