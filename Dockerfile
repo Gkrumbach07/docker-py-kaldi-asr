@@ -1,5 +1,5 @@
 # FROM quay.io/mpuels/docker-kaldi-asr:2018-06-21
-FROM quay.io/gkrumbach07/kaldi-base-debian:latest
+FROM quay.io/gkrumbach07/kaldi-base-debian:debian
 
 ARG DIR_PKGCONFIG=/usr/lib/pkgconfig
 
