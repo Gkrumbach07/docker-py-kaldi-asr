@@ -14,6 +14,7 @@ RUN apt-get update
 RUN apt-get install --no-install-recommends -y \
             libatlas-base-dev \
             pkg-config \
+            python3-setuptools \
             python3-pip \
             python3-dev && \
     apt-get clean && \
@@ -27,10 +28,11 @@ RUN pip3 install \
         plac==0.9.6 \
         python-json-logger==0.1.9 \
         typing==3.6.4 \
+        wheel \
         kafka \
         flask
 
-RUN pip3 install py-kaldi-asr==0.4.1
+RUN pip3 install py-kaldi-asr==0.5.2
 
 RUN pip3 install Werkzeug==0.16.0
 
