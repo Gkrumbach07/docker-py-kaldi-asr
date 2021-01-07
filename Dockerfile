@@ -29,8 +29,9 @@ RUN pip3 install \
         wheel \
         kafka \
         flask \
-        Werkzeug==0.16.0 \
-        mkl
+        Werkzeug==0.16.0
+        
+RUN pip3 install mkl
 
 RUN pip3 install py-kaldi-asr==0.5.2
 
