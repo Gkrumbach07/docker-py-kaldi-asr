@@ -1,6 +1,6 @@
 # FROM quay.io/mpuels/docker-kaldi-asr:2018-06-21
-FROM quay.io/gkrumbach07/kaldi-base-debian:debian
-
+#FROM quay.io/gkrumbach07/kaldi-base-debian:debian
+FROM pguyot/kaldi-asr:latest
 
 ARG DIR_PKGCONFIG=/usr/lib/pkgconfig
 
@@ -9,14 +9,11 @@ ENV LD_LIBRARY_PATH /opt/kaldi/tools/openfst/lib:/opt/kaldi/src/lib
 RUN mkdir -p ${DIR_PKGCONFIG}
 COPY kaldi-asr.pc ${DIR_PKGCONFIG}
 
-RUN apt-get update
-
 RUN apt-get install --no-install-recommends -y \
             libatlas-base-dev \
             pkg-config \
-            python3-setuptools \
-            python3-pip \
-            python3-dev && \
+            python-dev \
+            python-setuptools && \
     apt-get clean && \
     apt-get autoclean && \
     apt-get autoremove -y
@@ -27,17 +24,16 @@ RUN pip3 install \
         pathlib2==2.3.2 \
         plac==0.9.6 \
         python-json-logger==0.1.9 \
-        typing==3.6.4 \
+        setproctitle==1.1.10 \
+        typing==3.6.4
         wheel \
         kafka \
-        flask
+        flask \
+        Werkzeug==0.16.0
 
 RUN pip3 install py-kaldi-asr==0.5.2
 
-RUN pip3 install Werkzeug==0.16.0
-
 COPY app.py /opt/asr_server/
-COPY profileTest.py /opt/asr_server/
 
 RUN apt-get install xz-utils -y && \
     apt-get clean && \
