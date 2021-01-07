@@ -1,6 +1,5 @@
 # FROM quay.io/mpuels/docker-kaldi-asr:2018-06-21
-#FROM quay.io/gkrumbach07/kaldi-base-debian:debian
-FROM pguyot/kaldi-asr:latest
+FROM quay.io/gkrumbach07/kaldi-base-debian:debian
 
 ARG DIR_PKGCONFIG=/usr/lib/pkgconfig
 
@@ -12,8 +11,9 @@ COPY kaldi-asr.pc ${DIR_PKGCONFIG}
 RUN apt-get install --no-install-recommends -y \
             libatlas-base-dev \
             pkg-config \
-            python-dev \
-            python-setuptools && \
+            python3-dev \
+            python3-pip \
+            python3-setuptools && \
     apt-get clean && \
     apt-get autoclean && \
     apt-get autoremove -y
