@@ -25,7 +25,7 @@ RUN pip3 install \
         plac==0.9.6 \
         python-json-logger==0.1.9 \
         setproctitle==1.1.10 \
-        typing==3.6.4
+        typing==3.6.4 \
         wheel \
         kafka \
         flask \
