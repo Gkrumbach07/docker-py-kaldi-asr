@@ -1,4 +1,5 @@
-FROM pguyot/kaldi-asr:latest
+FROM quay.io/mpuels/docker-kaldi-asr:2018-06-21
+#FROM quay.io/gkrumbach07/kaldi-base-debian:latest
 
 ARG DIR_PKGCONFIG=/usr/lib/pkgconfig
 
@@ -10,14 +11,14 @@ COPY kaldi-asr.pc ${DIR_PKGCONFIG}
 RUN apt-get install --no-install-recommends -y \
             libatlas-base-dev \
             pkg-config \
-            python-dev \
-            python-setuptools && \
+            python3-dev \
+            python3-pip \
+            python3-setuptools && \
     apt-get clean && \
     apt-get autoclean && \
     apt-get autoremove -y
 
-RUN pip install wheel && \
-    pip install \
+RUN pip3 install \
         cython==0.28.3 \
         numpy==1.14.4 \
         pathlib2==2.3.2 \
@@ -25,25 +26,12 @@ RUN pip install wheel && \
         python-json-logger==0.1.9 \
         setproctitle==1.1.10 \
         typing==3.6.4 \
-	kafka \
+        wheel \
+        kafka \
         flask \
         Werkzeug==0.16.0
 
-COPY app.py /opt/asr_server/
-
-RUN pip install git+https://github.com/pguyot/py-kaldi-asr.git
-
-RUN apt-get install --no-install-recommends -y \
-            swig \
-            pulseaudio \
-            libpulse-dev \
-            libasound2-dev \
-            sphinxbase-utils && \
-    apt-get clean && \
-    apt-get autoclean && \
-    apt-get autoremove -y
-
-RUN pip install git+https://github.com/pguyot/py-nltools.git
+RUN pip3 install py-kaldi-asr==0.5.2
 
 COPY app.py /opt/asr_server/
 
@@ -63,4 +51,4 @@ RUN wget -q http://goofy.zamia.org/zamia-speech/asr-models/${MODEL_NAME}.tar.xz 
 EXPOSE 8080
 
 WORKDIR /opt/asr_server
-CMD ["python", "app.py"]
+CMD ["python3", "app.py"]
