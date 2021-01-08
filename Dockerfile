@@ -31,8 +31,6 @@ RUN pip3 install \
         flask \
         Werkzeug==0.16.0
         
-RUN pip3 install mkl
-
 RUN pip3 install py-kaldi-asr==0.5.2
 
 COPY app.py /opt/asr_server/
