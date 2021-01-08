@@ -6,6 +6,7 @@ import json
 import wave
 import struct
 import requests
+import random
 
 from time import time, sleep
 from optparse import OptionParser
@@ -65,7 +66,7 @@ try:
     # pulseaudio recorder
     rec = PulseRecorder (source_name=source, volume=volume)
 
-    rec.start_recording(frames_per_buffer=4000)
+    rec.start_recording(frames_per_buffer=100)
     print ("Please speak.")
 
 except Exception as e:
@@ -75,14 +76,14 @@ except Exception as e:
 try:
     longest_streak = 0
     last_phrase = ""
+    id = random.randint(0, 99999)
+
     while True:
         samples = rec.get_samples().tolist()
 
         finalize = False
         if longest_streak > 3:
             finalize = True
-
-        id = 123 #temp
 
         data = {'audio'      : samples,
                 'do_finalize': finalize,
@@ -95,12 +96,12 @@ try:
             logging.error(response.text)
         else:
             if finalize:
-                 logging.info ( "prediction    : %s - %f" % (response.json()['hstr'], response.json()['confidence']))
+                 logging.info ( "\tFinal    : %s - %f" % (response.json()['hstr'], response.json()['confidence']))
                  longest_streak = 0;
                  last_phrase = ""
 
             else:
-                logging.info ( "prediction    : %s - %f" % (response.json()['hstr'], response.json()['confidence']))
+                logging.info ( "\tPrediction    : %s - %f" % (response.json()['hstr'], response.json()['confidence']))
                 if(last_phrase == response.json()['hstr'] and response.json()['hstr'] != ""):
                     longest_streak += 1
                 else:

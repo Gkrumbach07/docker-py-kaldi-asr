@@ -79,6 +79,9 @@ def decode():
         hstr, confidence = states[id].decoder.get_decoded_string()
         logging.debug ( "** %9.5f %s" % (confidence, hstr))
 
+        # if done then remove state
+        states.pop(id)
+
         # if producing, then push to topic
         if producer != None:
             producer.send(topic, json.dumps(hstr).encode('utf-8'))
