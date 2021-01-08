@@ -1,7 +1,6 @@
 import os
 import logging
 import json
-import _thread
 from time import time, sleep
 from collections import namedtuple
 from optparse import OptionParser
@@ -39,14 +38,6 @@ class DecoderState():
         self.decoder = KaldiNNet3OnlineDecoder(self.model)
         self.last_used = time()
 
-
-def manage_states(delay, threadName):
-   while True:
-      sleep(delay)
-      for key in states:
-          if states[key].last_used > time() + delay:
-              states.pop(key)
-              logging.debug("Decoder '" + str(key) + "' was removed.")
 
 
 @app.route('/')
@@ -129,12 +120,6 @@ if __name__ == '__main__':
     if topic != None and broker != None:
         producer = KafkaProducer(bootstrap_servers=broker)
 
-    # start manage thread
-    try:
-        #_thread.start_new_thread(manage_states, (600, "Thread1"))
-        logging.info("Starting state manager thread.")
-    except Exception as e:
-        logging.error(e)
 
     # run HTTP server
     try:
