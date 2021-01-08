@@ -45,7 +45,7 @@ RUN apt-get install --no-install-recommends -y \
 
 RUN pip install git+https://github.com/pguyot/py-nltools.git
 
-COPY asr_server.py /opt/asr_server/
+COPY app.py /opt/asr_server/
 
 RUN apt-get install xz-utils -y && \
     apt-get clean && \
