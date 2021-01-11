@@ -34,6 +34,8 @@ RUN pip3 install \
 RUN pip3 install py-kaldi-asr==0.5.2
 
 COPY app.py /opt/asr_server/
+COPY asr.py /opt/asr_server/
+
 
 RUN apt-get install xz-utils -y && \
     apt-get clean && \
