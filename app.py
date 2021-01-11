@@ -28,9 +28,9 @@ producer = None
 topic = None
 
 app = Flask(__name__)
-from werkzeug.contrib.profiler import ProfilerMiddleware
-app.config['PROFILE'] = True
-app.wsgi_app = ProfilerMiddleware(app.wsgi_app, restrictions=[30])
+# from werkzeug.contrib.profiler import ProfilerMiddleware
+# app.config['PROFILE'] = True
+# app.wsgi_app = ProfilerMiddleware(app.wsgi_app, restrictions=[30])
 
 class DecoderState():
     def __init__(self):
@@ -123,6 +123,7 @@ if __name__ == '__main__':
 
     # run HTTP server
     try:
-        app.run(debug=True, host="0.0.0.0", port=8080)
+        # app.run(debug=True, host="0.0.0.0", port=8080)
+        app.run(host="0.0.0.0", port=8080)
     except Exception as e:
         logging.error(e)

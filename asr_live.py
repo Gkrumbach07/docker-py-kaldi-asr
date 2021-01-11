@@ -13,6 +13,24 @@ from optparse import OptionParser
 
 from pulserecorder import PulseRecorder
 
+from pynput import keyboard
+
+def on_press(key):
+    try:
+        print('alphanumeric key {0} pressed'.format(
+            key.char))
+    except AttributeError:
+        print('special key {0} pressed'.format(
+            key))
+
+def on_release(key):
+    print('{0} released'.format(
+        key))
+    if key == keyboard.Key.esc:
+        # Stop listener
+        return False
+
+
 
 DEFAULT_URL = 'localhost:8080'
 
@@ -66,12 +84,19 @@ try:
     # pulseaudio recorder
     rec = PulseRecorder (source_name=source, volume=volume)
 
-    rec.start_recording(frames_per_buffer=100)
+    rec.start_recording()
     print ("Please speak.")
 
 except Exception as e:
     logging.critical(e)
     sys.exit(1)
+
+
+listener = keyboard.Listener(
+    on_press=on_press,
+    on_release=on_release)
+
+listener.start()
 
 try:
     longest_streak = 0
