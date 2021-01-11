@@ -66,6 +66,7 @@ def decode():
 
     states[id].decoder.decode(SAMPLE_RATE, np.array(audio, dtype=np.float32), do_finalize)
 
+
     if do_finalize:
         hstr, confidence = states[id].decoder.get_decoded_string()
         logging.debug ( "** %9.5f %s" % (confidence, hstr))
@@ -76,8 +77,8 @@ def decode():
         # if producing, then push to topic
         if producer != None:
             producer.send(topic, json.dumps(hstr).encode('utf-8'))
-
-    hstr, confidence = states[id].decoder.get_decoded_string()
+    else:
+        hstr, confidence = states[id].decoder.get_decoded_string()
 
     return {'hstr': hstr, 'confidence': confidence}
 

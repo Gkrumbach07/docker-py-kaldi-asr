@@ -15,20 +15,19 @@ from pulserecorder import PulseRecorder
 
 from pynput import keyboard
 
-def on_press(key):
-    try:
-        print('alphanumeric key {0} pressed'.format(
-            key.char))
-    except AttributeError:
-        print('special key {0} pressed'.format(
-            key))
+isRecording = False
 
-def on_release(key):
-    print('{0} released'.format(
-        key))
-    if key == keyboard.Key.esc:
-        # Stop listener
-        return False
+def on_press(key):
+    global isRecording
+    if key == keyboard.Key.space:
+        if isRecording:
+            rec.stop_recording()
+            isRecording = False
+            print ("Recording stopped.")
+        else:
+            rec.start_recording(frames_per_buffer=4000)
+            isRecording = True
+            print ("Please speak.")
 
 
 
@@ -83,18 +82,12 @@ url = 'http://%s/decode' % (options.host)
 try:
     # pulseaudio recorder
     rec = PulseRecorder (source_name=source, volume=volume)
-
-    rec.start_recording()
-    print ("Please speak.")
-
 except Exception as e:
     logging.critical(e)
     sys.exit(1)
 
 
-listener = keyboard.Listener(
-    on_press=on_press,
-    on_release=on_release)
+listener = keyboard.Listener(on_press=on_press)
 
 listener.start()
 
@@ -103,35 +96,38 @@ try:
     last_phrase = ""
     id = random.randint(0, 99999)
 
+    print("Ready.")
+
     while True:
-        samples = rec.get_samples().tolist()
+        if isRecording:
+            samples = rec.get_samples().tolist()
 
-        finalize = False
-        if longest_streak > 3:
-            finalize = True
+            finalize = False
+            if longest_streak > 3:
+                finalize = True
 
-        data = {'audio'      : samples,
-                'do_finalize': finalize,
-                'topic'      : topic,
-                'broker'     : broker,
-                'id'         : id}
+            data = {'audio'      : samples,
+                    'do_finalize': finalize,
+                    'topic'      : topic,
+                    'broker'     : broker,
+                    'id'         : id}
 
-        response = requests.post(url, json=data)
-        if not response.ok:
-            logging.error(response.text)
-        else:
-            if finalize:
-                 logging.info ( "\tFinal    : %s - %f" % (response.json()['hstr'], response.json()['confidence']))
-                 longest_streak = 0;
-                 last_phrase = ""
-
+            response = requests.post(url, json=data)
+            if not response.ok:
+                logging.error(response.text)
             else:
-                logging.info ( "\tPrediction    : %s - %f" % (response.json()['hstr'], response.json()['confidence']))
-                if(last_phrase == response.json()['hstr'] and response.json()['hstr'] != ""):
-                    longest_streak += 1
+                if finalize:
+                     logging.info ( "\tFinal    : %s - %f" % (response.json()['hstr'], response.json()['confidence']))
+                     longest_streak = 0;
+                     last_phrase = ""
+
                 else:
-                    longest_streak = 0
-                    last_phrase = response.json()['hstr']
+                    logging.info ( "\tPrediction    : %s - %f" % (response.json()['hstr'], response.json()['confidence']))
+                    if(last_phrase == response.json()['hstr'] and response.json()['hstr'] != ""):
+                        longest_streak += 1
+                    else:
+                        longest_streak = 0
+                        last_phrase = response.json()['hstr']
 
 except KeyboardInterrupt:
     logging.info("Keyboard Interrupt: stopping service")
