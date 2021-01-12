@@ -12,9 +12,6 @@ import socket
 from time import time, sleep
 from optparse import OptionParser
 
-from pulserecorder import PulseRecorder
-from vad import VAD, BUFFER_DURATION
-
 
 DEFAULT_URL = 'localhost:8080'
 DEFAULT_VOLUME = 150
@@ -96,7 +93,11 @@ def decode_wav_file(file, url, topic, broker):
 
 
 def decode_live(source, volume, aggressiveness, url, topic, broker):
+    from pulserecorder import PulseRecorder
+    from vad import VAD, BUFFER_DURATION
+    
     global stream_id
+
     try:
         # pulseaudio recorder
         rec = PulseRecorder (source_name=source, volume=volume)
