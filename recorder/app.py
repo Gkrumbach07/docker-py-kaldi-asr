@@ -7,7 +7,6 @@ import wave
 import struct
 import requests
 import random
-import np
 import socket
 
 from time import time, sleep
