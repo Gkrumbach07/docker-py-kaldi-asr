@@ -83,11 +83,8 @@ def decode_wav_file(file, url, topic, broker):
 
         if not response.ok:
             logging.error(response.text)
-        elif finalize:
-            logging.info("Decoding finished for " + file)
-            logging.info("Prediction    : %s - %f" % (response.json()['hstr'], response.json()['confidence']))
         else:
-            logging.debug("Prediction    : %s - %f" % (response.json()['hstr'], response.json()['confidence']))
+            logging.info("Prediction    : %s - %f" % (response.json()['hstr'], response.json()['confidence']))
 
     wavf.close()
 
@@ -95,7 +92,7 @@ def decode_wav_file(file, url, topic, broker):
 def decode_live(source, volume, aggressiveness, url, topic, broker):
     from pulserecorder import PulseRecorder
     from vad import VAD, BUFFER_DURATION
-    
+
     global stream_id
 
     try:
