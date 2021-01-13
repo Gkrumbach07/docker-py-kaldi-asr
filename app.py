@@ -27,24 +27,12 @@ SAMPLE_RATE       = 16000
 # globals
 kaldi_model_dir = None
 kaldi_model = None
-# states = None
 producer = None
-topic = None
+last_broker = None
 asr = None
 
 
 app = Flask(__name__)
-# from werkzeug.contrib.profiler import ProfilerMiddleware
-# app.config['PROFILE'] = True
-# app.wsgi_app = ProfilerMiddleware(app.wsgi_app, restrictions=[30])
-
-# class DecoderState():
-#     def __init__(self):
-#         self.model = KaldiNNet3OnlineModel(kaldi_model_dir, kaldi_model)
-#         self.decoder = KaldiNNet3OnlineDecoder(self.model)
-#         self.last_used = time()
-
-
 
 @app.route('/')
 def info():
@@ -57,36 +45,29 @@ def decode():
         audio       = request.json['audio']
         do_finalize = request.json['do_finalize']
         id          = request.json['id']
+        broker      = request.json['broker']
+        topic       = request.json['topic']
     except Exception as e:
         logging.error(e)
         return {'hstr': 'load error', 'confidence': 1}
 
-    # set session state
-    # if id not in states:
-    #     states[id] = DecoderState()
-    # else:
-    #     states[id].last_used = time()
-
-    hstr        = ''
-    confidence  = 0.0
-
-    # states[id].decoder.decode(SAMPLE_RATE, np.array(audio, dtype=np.float32), do_finalize)
 
     hstr, confidence = asr.decode(audio, do_finalize, stream_id=id)
 
-
     if do_finalize:
-        # hstr, confidence = states[id].decoder.get_decoded_string()
-        logging.debug ( "** %9.5f %s" % (confidence, hstr))
+        logging.info ( "Finalized decode: %9.5f %s" % (confidence, hstr))
 
-        # if done then remove state
-        # states.pop(id)
-
-        # if producing, then push to topic
-        if producer != None:
+        # kafka produce
+        if broker and topic:
+            global producer
+            global last_broker
+            if last_broker != broker or producer == None:
+                producer = KafkaProducer(bootstrap_servers=broker)
+                logging.info ("New producer: %s", broker)
+            else:
+                last_broker = broker
             producer.send(topic, json.dumps(hstr).encode('utf-8'))
-    # else:
-        # hstr, confidence = states[id].decoder.get_decoded_string()
+            logging.info ("Pruducer (%s) sent successfully to topic (%s)" % (broker, topic))
 
     return {'hstr': hstr, 'confidence': confidence}
 
@@ -120,24 +101,12 @@ if __name__ == '__main__':
     kaldi_model_dir = options.model_dir
     kaldi_model     = options.model
 
-    # setup state memmory
-    # states = {}
-
-    #start producer
-    broker = os.getenv('KAFKA_BROKER', None)
-    topic = os.getenv('KAFKA_TOPIC', None)
-    if topic != None and broker != None:
-        producer = KafkaProducer(bootstrap_servers=broker)
-
     asr = ASR(engine = ASR_ENGINE_NNET3, model_dir = kaldi_model_dir,
           kaldi_beam = DEFAULT_BEAM, kaldi_acoustic_scale = DEFAULT_ACOUSTIC_SCALE,
           kaldi_frame_subsampling_factor = DEFAULT_FRAME_SUBSAMPLING_FACTOR)
 
-
-
     # run HTTP server
     try:
-        # app.run(debug=True, host="0.0.0.0", port=8080)
         app.run(host="0.0.0.0", port=8080)
     except Exception as e:
         logging.error(e)
