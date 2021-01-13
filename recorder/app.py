@@ -39,7 +39,7 @@ def simulate(url, topic, broker):
     while(True):
         file = random.choice(os.listdir("data"))
         decode_wav_file("data/" + file, url, topic, broker)
-        sleep(5)
+        sleep(random.randint(2, 8))
 
 
 def decode_wav_file(file, url, topic, broker):
