@@ -39,7 +39,7 @@ def simulate(url, topic, broker):
     while(True):
         file = random.choice(os.listdir("data"))
         decode_wav_file("data/" + file, url, topic, broker)
-        sleep(5 * 60)
+        sleep(5)
 
 
 def decode_wav_file(file, url, topic, broker):
@@ -87,6 +87,7 @@ def decode_wav_file(file, url, topic, broker):
             logging.info("Prediction    : %s - %f" % (response.json()['hstr'], response.json()['confidence']))
 
     wavf.close()
+    logging.info("Done.")
 
 
 def decode_live(source, volume, aggressiveness, url, topic, broker):
@@ -150,9 +151,7 @@ def main(options):
     # kafka streaming
     broker = get_arg('KAFKA_BROKERS', options.broker)
     topic = get_arg('KAFKA_TOPIC', options.topic)
-    if options.topic and options.broker:
-        topic = options.topic
-        broker = options.broker
+    if topic and broker:
         logging.info("Kafka broker and topic are set.")
     else:
         logging.warning("A topic and broker were not specified. Kafka is diabled")
