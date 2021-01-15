@@ -66,7 +66,7 @@ def decode():
                 logging.info ("New producer: %s", broker)
             else:
                 last_broker = broker
-            producer.send(topic, json.dumps(hstr).encode('utf-8'), key=id)
+            producer.send(topic, json.dumps(hstr).encode('utf-8'))
             logging.info ("Pruducer (%s) sent successfully to topic (%s)" % (broker, topic))
 
     return {'hstr': hstr, 'confidence': confidence}
