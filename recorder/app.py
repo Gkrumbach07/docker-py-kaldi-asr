@@ -158,6 +158,7 @@ def main(options):
 
 
     # set session id
+    global stream_id
     stream_id = get_uuid()
 
 
