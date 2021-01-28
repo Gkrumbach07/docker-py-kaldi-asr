@@ -9,6 +9,6 @@ can connect to to transcribe audio.
 This repo contains a few elements:
 - Audio decoder api
 - Audio decoder client example
--- client simulator
--- live decoding interface
--- file decoding interface
+* client simulator
+* live decoding interface
+* file decoding interface
