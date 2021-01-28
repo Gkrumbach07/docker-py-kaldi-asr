@@ -2,13 +2,13 @@ import os
 import logging
 import json
 from time import time, sleep
-from collections import namedtuple
 from optparse import OptionParser
 from flask import Flask, request
 
-from asr import ASR, ASR_ENGINE_NNET3
-from kaldiasr.nnet3 import KaldiNNet3OnlineModel, KaldiNNet3OnlineDecoder
+#from asr import ASR, ASR_ENGINE_NNET3
 import numpy as np
+from nltools.asr import ASR, ASR_ENGINE_NNET3
+
 from kafka import KafkaProducer
 
 DEFAULT_HOST      = ''
