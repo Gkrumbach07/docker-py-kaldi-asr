@@ -5,9 +5,8 @@ from time import time, sleep
 from optparse import OptionParser
 from flask import Flask, request
 
-#from asr import ASR, ASR_ENGINE_NNET3
+from asr import ASR, ASR_ENGINE_NNET3
 import numpy as np
-from nltools.asr import ASR, ASR_ENGINE_NNET3
 
 from kafka import KafkaProducer
 
