@@ -31,7 +31,9 @@ RUN pip3 install \
         flask \
         Werkzeug==0.16.0
 
-RUN pip install py-nltools --no-dependencies
+RUN pip3 install py-kaldi-asr==0.5.2
+
+RUN wget https://raw.githubusercontent.com/gooofy/py-nltools/7b989dd4642317a2a0f402e94207ee3186385824/nltools/asr.py
 
 COPY app.py /opt/asr_server/
 COPY asr.py /opt/asr_server/
