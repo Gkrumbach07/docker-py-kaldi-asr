@@ -1,20 +1,14 @@
-# py-kaldi-asr: a simple Python wrapper for Kaldi ASR
+# Python Kaldi Audio Decoder API
 
 This image contains Kaldi and
 [py-kaldi-asr](https://github.com/gooofy/py-kaldi-asr), a simple Python
-wrapper for Kaldi. It contains a sample server in /opt/asr_server that clients
+wrapper for Kaldi. It contains a Flask server in /opt/asr_server that clients
 can connect to to transcribe audio.
 
-Note: This image doesn't contain a Kaldi model, which is required for
-transcription. Refer to
-https://quay.io/repository/mpuels/docker-py-kaldi-asr-and-model for images
-that are ready for transcription.
-
-The image is part of [Zamia Speech](https://github.com/gooofy/zamia-speech).
-
-
-## Sample STT Service based on Kaldi ASR
-
-Check out
-[docker-py-kaldi-asr-and-model](https://github.com/mpuels/docker-py-kaldi-asr-and-model)
-for a sample Docker image that can be used right away for transcription.
+## What is in this repo
+This repo contains a few elements:
+- Audio decoder api
+- Audio decoder client example
+-- client simulator
+-- live decoding interface
+-- file decoding interface
