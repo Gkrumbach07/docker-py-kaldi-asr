@@ -48,13 +48,15 @@ def decode_wav_file(file, url, topic, broker):
     logging.info('decoding %s...' % file)
     wavf = wave.open(file, 'rb')
 
+    sample_rate = wavf.getframerate()
+
     # check format
     assert wavf.getnchannels()==1
     assert wavf.getsampwidth()==2
 
     # process file in 250ms chunks
 
-    chunk_frames = 250 * wavf.getframerate() / 1000
+    chunk_frames = 250 * sample_rate / 1000
     tot_frames   = wavf.getnframes()
 
     num_frames = 0
@@ -76,7 +78,8 @@ def decode_wav_file(file, url, topic, broker):
                 'do_finalize': finalize,
                 'topic'      : topic,
                 'broker'     : broker,
-                'id'         : stream_id}
+                'id'         : stream_id
+                'sample_rate': sample_rate}
 
 
         response = requests.post(url, json=data)
@@ -115,7 +118,8 @@ def decode_live(source, volume, aggressiveness, url, topic, broker):
                     'do_finalize': finalize,
                     'topic'      : topic,
                     'broker'     : broker,
-                    'id'         : stream_id}
+                    'id'         : stream_id
+                    'sample_rate': 16000}
 
             response = requests.post(url, json=data)
             if not response.ok:
@@ -146,7 +150,7 @@ def main(options):
     url = 'http://%s/decode' % (get_arg('HOST', options.host))
 
     # for simulations, set if simulator should be used
-    do_simulate = get_arg('DO_SIMULATE', False)
+    do_simulate = get_arg('DO_SIMULATE', False) || options.sim
 
     # kafka streaming
     broker = get_arg('KAFKA_BROKERS', options.broker)
@@ -163,10 +167,10 @@ def main(options):
 
 
     # function of script
-    if options.file:
-        decode_wav_file(options.file, url, topic, broker)
-    elif do_simulate:
+    if do_simulate:
         simulate(url, topic, broker)
+    elif options.file:
+        decode_wav_file(options.file, url, topic, broker)
     else:
         decode_live(source, volume, aggressiveness, url, topic, broker)
 
@@ -192,6 +196,8 @@ if __name__ == '__main__':
 
     parser.add_option ("-f", "--file", dest="file", type = "string", default=None,
                         help="wave file, default: no file; use live decoding")
+
+    parser.add_option('-S', '--simulate', dest="sim", action="store_false", help='To run the simulater or not')
 
     parser.add_option('-b', '--broker', dest="broker", type = "string", help='The bootstrap servers')
 

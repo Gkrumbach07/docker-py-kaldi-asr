@@ -42,6 +42,7 @@ def info():
 def decode():
     try:
         audio       = request.json['audio']
+        rate       = request.json['sample_rate']
         do_finalize = request.json['do_finalize']
         id          = request.json['id']
         broker      = request.json['broker']
@@ -50,8 +51,10 @@ def decode():
         logging.error(e)
         return {'hstr': 'load error', 'confidence': 1}
 
+    if rate ==  None:
+        rate = SAMPLE_RATE
 
-    hstr, confidence = asr.decode(audio, do_finalize, stream_id=id)
+    hstr, confidence = asr.decode(audio, do_finalize, stream_id=id, sample_rate=rate)
 
     if do_finalize:
         logging.info ( "Finalized decode: %9.5f %s" % (confidence, hstr))
