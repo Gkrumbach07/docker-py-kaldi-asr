@@ -69,7 +69,13 @@ There are sample files located in the `/data` folder.
 NOTE: The wave files must have a sample rate of 16 kHz. This can be changed in the decoder itself if need be.
 
 ### Simulate a client
-Here you add the `-S` tag which will start a simulator. This picks a random wav file in the `/data` folder and decodes it. This process repeats until the process is closed.
+You can add the `-S` tag which will start a simulator. This picks a random wav file in the `/data` folder and decodes it. This repeats until the process is closed.
 ```
 pipenv run python app.py -H {HOST} -S
 ```
+### Kafka Streaming
+You can stream your clients predictions to a Kafka topic using the tags `-b` for the broker and `-t` for the topic. 
+```
+pipenv run python app.py -H {HOST} -b {BROKER}:9092 -t {TOPIC}
+```
+Exmaples of how this stream is used can be found in the section on the sentiment analysis application below.
