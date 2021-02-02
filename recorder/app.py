@@ -38,6 +38,8 @@ def simulate(url, topic, broker):
     # pick audio file and decode
     while(True):
         file = random.choice(os.listdir("data"))
+        if os.path.splitext(file)[1] != '.wav':
+            continue
         decode_wav_file("data/" + file, url, topic, broker)
         sleep(random.randint(2, 8))
 
@@ -78,7 +80,7 @@ def decode_wav_file(file, url, topic, broker):
                 'do_finalize': finalize,
                 'topic'      : topic,
                 'broker'     : broker,
-                'id'         : stream_id
+                'id'         : stream_id,
                 'sample_rate': sample_rate}
 
 
@@ -118,7 +120,7 @@ def decode_live(source, volume, aggressiveness, url, topic, broker):
                     'do_finalize': finalize,
                     'topic'      : topic,
                     'broker'     : broker,
-                    'id'         : stream_id
+                    'id'         : stream_id,
                     'sample_rate': 16000}
 
             response = requests.post(url, json=data)
@@ -150,7 +152,10 @@ def main(options):
     url = 'http://%s/decode' % (get_arg('HOST', options.host))
 
     # for simulations, set if simulator should be used
-    do_simulate = get_arg('DO_SIMULATE', False) || options.sim
+
+
+    do_simulate = get_arg('DO_SIMULATE', False) or options.sim
+
 
     # kafka streaming
     broker = get_arg('KAFKA_BROKERS', options.broker)
@@ -197,7 +202,7 @@ if __name__ == '__main__':
     parser.add_option ("-f", "--file", dest="file", type = "string", default=None,
                         help="wave file, default: no file; use live decoding")
 
-    parser.add_option('-S', '--simulate', dest="sim", action="store_false", help='To run the simulater or not')
+    parser.add_option('-S', '--simulate', dest="sim", action="store_true", help='To run the simulater or not')
 
     parser.add_option('-b', '--broker', dest="broker", type = "string", help='The bootstrap servers')
 
