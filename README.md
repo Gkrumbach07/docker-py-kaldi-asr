@@ -66,8 +66,6 @@ pipenv run python app.py -H {HOST} -f {FILE}
 ```
 There are sample files located in the `/data` folder.
 
-NOTE: The wave files must have a sample rate of 16 kHz. This can be changed in the decoder itself if need be.
-
 ### Simulate a client
 You can add the `-S` tag which will start a simulator. This picks a random wav file in the `/data` folder and decodes it. This repeats until the process is closed.
 ```
