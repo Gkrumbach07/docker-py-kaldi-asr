@@ -18,8 +18,6 @@ DEFAULT_VOLUME = 150
 DEFAULT_AGGRESSIVENESS = 2
 stream_id = "__defualt__"
 
-# global cookie session
-session = None
 
 def get_uuid():
     ip = None
@@ -49,7 +47,9 @@ def simulate(url, topic, broker):
 
 def decode_wav_file(file, url, topic, broker):
     global stream_id
-    global session
+
+    # create requests session for saving cookies
+    session = requests.Session()
 
     logging.info('decoding %s...' % file)
     wavf = wave.open(file, 'rb')
@@ -95,6 +95,7 @@ def decode_wav_file(file, url, topic, broker):
             logging.info("Prediction    : %s - %f" % (response.json()['hstr'], response.json()['confidence']))
 
     wavf.close()
+    session.close()
     logging.info("Done.")
 
 
@@ -103,7 +104,9 @@ def decode_live(source, volume, aggressiveness, url, topic, broker):
     from vad import VAD, BUFFER_DURATION
 
     global stream_id
-    global session
+
+    # create requests session for saving cookies
+    session = requests.Session()
 
     try:
         # pulseaudio recorder
@@ -136,8 +139,10 @@ def decode_live(source, volume, aggressiveness, url, topic, broker):
     except KeyboardInterrupt:
         logging.info("Keyboard Interrupt: stopping service")
         rec.stop_recording()
+        session.close()
     except Exception as e:
         logging.critical(e)
+        session.close()
         sys.exit(1)
 
 
@@ -181,10 +186,6 @@ def main(options):
         decode_wav_file(options.file, url, topic, broker)
     else:
         decode_live(source, volume, aggressiveness, url, topic, broker)
-
-    # create requests session for saving cookies
-    global session
-    session = requests.Session()
 
 
 if __name__ == '__main__':
