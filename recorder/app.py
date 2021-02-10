@@ -18,6 +18,9 @@ DEFAULT_VOLUME = 150
 DEFAULT_AGGRESSIVENESS = 2
 stream_id = "__defualt__"
 
+# global cookie session
+session = None
+
 def get_uuid():
     ip = None
     try:
@@ -46,6 +49,7 @@ def simulate(url, topic, broker):
 
 def decode_wav_file(file, url, topic, broker):
     global stream_id
+    global session
 
     logging.info('decoding %s...' % file)
     wavf = wave.open(file, 'rb')
@@ -57,7 +61,6 @@ def decode_wav_file(file, url, topic, broker):
     assert wavf.getsampwidth()==2
 
     # process file in 250ms chunks
-
     chunk_frames = 250 * sample_rate / 1000
     tot_frames   = wavf.getnframes()
 
@@ -84,7 +87,7 @@ def decode_wav_file(file, url, topic, broker):
                 'sample_rate': sample_rate}
 
 
-        response = requests.post(url, json=data)
+        response = session.post(url, json=data)
 
         if not response.ok:
             logging.error(response.text)
@@ -100,6 +103,7 @@ def decode_live(source, volume, aggressiveness, url, topic, broker):
     from vad import VAD, BUFFER_DURATION
 
     global stream_id
+    global session
 
     try:
         # pulseaudio recorder
@@ -113,6 +117,7 @@ def decode_live(source, volume, aggressiveness, url, topic, broker):
             samples = rec.get_samples()
             audio, finalize = vad.process_audio(samples)
 
+
             if not audio:
                 continue
 
@@ -123,7 +128,7 @@ def decode_live(source, volume, aggressiveness, url, topic, broker):
                     'id'         : stream_id,
                     'sample_rate': 16000}
 
-            response = requests.post(url, json=data)
+            response = session.post(url, json=data)
             if not response.ok:
                 logging.error(response.text)
             else:
@@ -152,8 +157,6 @@ def main(options):
     url = 'http://%s/decode' % (get_arg('HOST', options.host))
 
     # for simulations, set if simulator should be used
-
-
     do_simulate = get_arg('DO_SIMULATE', False) or options.sim
 
 
@@ -178,6 +181,10 @@ def main(options):
         decode_wav_file(options.file, url, topic, broker)
     else:
         decode_live(source, volume, aggressiveness, url, topic, broker)
+
+    # create requests session for saving cookies
+    global session
+    session = requests.Session()
 
 
 if __name__ == '__main__':
