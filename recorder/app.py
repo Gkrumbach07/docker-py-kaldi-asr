@@ -41,7 +41,7 @@ def simulate(url, topic, broker):
         file = random.choice(os.listdir("data"))
         if os.path.splitext(file)[1] != '.wav':
             continue
-        decode_wav_file("data/" + file, url, topic, broker, .5)
+        decode_wav_file("data/" + file, url, topic, broker, .25)
         sleep(random.randint(2, 8))
 
 

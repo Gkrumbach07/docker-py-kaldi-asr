@@ -56,9 +56,6 @@ def decode():
 
     hstr, confidence = asr.decode(audio, do_finalize, stream_id=id, sample_rate=rate)
 
-    if do_finalize:
-        logging.info ( "Finalized decode: %9.5f %s" % (confidence, hstr))
-
     # kafka produce
     if broker and topic:
         global producer
@@ -74,6 +71,9 @@ def decode():
         }
         producer.send(topic, json.dumps(data).encode('utf-8'))
         logging.info ("Pruducer (%s) sent successfully to topic (%s)" % (broker, topic))
+
+    if do_finalize:
+        logging.info ( "Finalized decode: %9.5f %s" % (confidence, hstr))
 
     return {'hstr': hstr, 'confidence': confidence}
 
