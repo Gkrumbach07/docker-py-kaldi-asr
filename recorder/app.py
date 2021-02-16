@@ -41,11 +41,11 @@ def simulate(url, topic, broker):
         file = random.choice(os.listdir("data"))
         if os.path.splitext(file)[1] != '.wav':
             continue
-        decode_wav_file("data/" + file, url, topic, broker)
+        decode_wav_file("data/" + file, url, topic, broker, .5)
         sleep(random.randint(2, 8))
 
 
-def decode_wav_file(file, url, topic, broker):
+def decode_wav_file(file, url, topic, broker, wait):
     global stream_id
 
     # create requests session for saving cookies
@@ -66,7 +66,7 @@ def decode_wav_file(file, url, topic, broker):
 
     num_frames = 0
     while num_frames < tot_frames:
-
+        time.sleep(wait)
         finalize = False
         if (num_frames + chunk_frames) < tot_frames:
             nframes = chunk_frames
@@ -183,7 +183,7 @@ def main(options):
     if do_simulate:
         simulate(url, topic, broker)
     elif options.file:
-        decode_wav_file(options.file, url, topic, broker)
+        decode_wav_file(options.file, url, topic, broker, 0)
     else:
         decode_live(source, volume, aggressiveness, url, topic, broker)
 
