@@ -59,22 +59,21 @@ def decode():
     if do_finalize:
         logging.info ( "Finalized decode: %9.5f %s" % (confidence, hstr))
 
-        # kafka produce
-        if broker and topic:
-            global producer
-            global last_broker
-            if last_broker != broker or producer == None:
-                producer = KafkaProducer(bootstrap_servers=broker)
-                logging.info ("New producer: %s", broker)
-            else:
-                last_broker = broker
+    # kafka produce
+    if broker and topic:
+        global producer
+        global last_broker
+        if last_broker != broker or producer == None:
+            producer = KafkaProducer(bootstrap_servers=broker)
+            last_broker = broker
+            logging.info ("New producer: %s", broker)
 
-            data = {
-                'sentence': hstr,
-                'id': id
-            }
-            producer.send(topic, json.dumps(data).encode('utf-8'))
-            logging.info ("Pruducer (%s) sent successfully to topic (%s)" % (broker, topic))
+        data = {
+            'sentence': hstr,
+            'id': id
+        }
+        producer.send(topic, json.dumps(data).encode('utf-8'))
+        logging.info ("Pruducer (%s) sent successfully to topic (%s)" % (broker, topic))
 
     return {'hstr': hstr, 'confidence': confidence}
 
