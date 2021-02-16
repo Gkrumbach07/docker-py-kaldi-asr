@@ -57,6 +57,8 @@ def decode():
     hstr, confidence = asr.decode(audio, do_finalize, stream_id=id, sample_rate=rate)
 
     # kafka produce
+    logging.info("%s, %s" % (broker, topic))
+
     if broker and topic:
         global producer
         global last_broker
