@@ -66,7 +66,7 @@ def decode_wav_file(file, url, topic, broker, wait):
 
     num_frames = 0
     while num_frames < tot_frames:
-        time.sleep(wait)
+        sleep(wait)
         finalize = False
         if (num_frames + chunk_frames) < tot_frames:
             nframes = chunk_frames
