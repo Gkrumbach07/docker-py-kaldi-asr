@@ -12,6 +12,7 @@ This repo contains a few elements:
     - client simulator
     - live decoding interface
     - file decoding interface
+- NLP notebook using Kafka
 
 ### Audio decoder api
 This is a simple flask server that takes a POST request on the `/decode` route and returns a predicted result. This is meant to be used in
@@ -19,7 +20,7 @@ live decoding applications, so session states need to be saved. This API is not 
 This is not a problem because later we will use OpenShit to deploy and scale the API properly.
 
 ## Deploying the api
-First we can run the following commands to deploy the API and expose its route.
+First we can run the following commands to deploy the API and expose its route. The image alreayd contains a pre trained model, but you can edit the Dockerfile and rebuild the image if you want to inject a differnt model. Currently this image relies on a community developed image of Kaldi.
 ```
 $ oc new-app \
   --docker-image=quay.io/gkrumbach07/docker-py-kaldi-asr:latest \
@@ -27,21 +28,11 @@ $ oc new-app \
 
 $ oc expose service/audio-decoder
 ```
-Now we need to change the routes load balancer so the API will scale properly. After exposing the route,
-navigate to the routes yaml and insert the following.
-```
-apiVersion: v1
-kind: Route
-metadata:
-  annotations:
-    haproxy.router.openshift.io/balance: source
-[...]
-```
-Setting the load balancer to `source` makes it so clients will always hit the same API container based on the hash of their IP address. This ensures the client's state is not lost after numerous calls to the API.
+You can scale the number of pods as much as you want or you can set up a horizontal auto scaler in OpenShift.
 
 ## Setting up the client
 To call the API service it is best to set up a client script which will automatically convert audio files / mic audio to raw vector data.
-In this repo under the recorder folder, there is a client script that cane be run to automate calling the API.
+In this repo under the recorder folder, there is a client script that can be run to automate calling the API. You can run this script locally or as a service on OpenShift using the client simulator. 
 
 Set up the pip environment with `pipenv install` in the `/recorder` subdirectory. There are three ways you can use this script.
 - Live decoding
@@ -57,10 +48,10 @@ Then you can run the following command to start the session.
 ```
 pipenv run python app.py -H {HOST}
 ```
-The host is equal to the route you exposed from the decoder above.
+The host is equal to the route you exposed from the decoder above. You can specify other other options for the audio input but it is not needed.
 
 ### Wav file decoding
-This does not requre pulseaudio, so all you need to run is:
+This does not require pulseaudio, so all you need to run is:
 ```
 pipenv run python app.py -H {HOST} -f {FILE}
 ```
@@ -71,8 +62,11 @@ You can add the `-S` tag which will start a simulator. This picks a random wav f
 ```
 pipenv run python app.py -H {HOST} -S
 ```
+If you plan to run the simulator on OpenShift, you will need to set the `DO_SIMULATE` enviroment variable to `True`. This makes it so the script will auto run as 
+a simulator compared to the other options.
+
 ### Kafka Streaming
-You can stream your clients predictions to a Kafka topic using the tags `-b` for the broker and `-t` for the topic. 
+You can stream your clients predictions to a Kafka topic using the tags `-b` for the broker and `-t` for the topic. In OpenShift, you can set the `KAFKA_BROKERS` and `KAFKA_TOPIC` enviroment variables to your desired Kafka streams. Using Kafak here will produce the decoded audio (text) and the user id to the desired Kafka topic.
 ```
 pipenv run python app.py -H {HOST} -b {BROKER}:9092 -t {TOPIC}
 ```
