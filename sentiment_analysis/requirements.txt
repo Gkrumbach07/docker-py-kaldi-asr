@@ -1,3 +1,0 @@
-flair
-kafka
-torch==1.6
