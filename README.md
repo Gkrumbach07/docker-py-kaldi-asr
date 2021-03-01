@@ -14,12 +14,12 @@ This repo contains a few elements:
     - file decoding interface
 - NLP notebook using Kafka
 
-### Audio decoder api
+## Audio decoder api
 This is a simple flask server that takes a POST request on the `/decode` route and returns a predicted result. This is meant to be used in
 live decoding applications, so session states need to be saved. This API is not stateless, as it stores the state of the decoder in the server itself.
 This is not a problem because later we will use OpenShit to deploy and scale the API properly.
 
-## Deploying the api
+### Deploying the api
 First we can run the following commands to deploy the API and expose its route. The image alreayd contains a pre trained model, but you can edit the Dockerfile and rebuild the image if you want to inject a differnt model. Currently this image relies on a community developed image of Kaldi.
 ```
 $ oc new-app \
@@ -30,7 +30,7 @@ $ oc expose service/audio-decoder
 ```
 You can scale the number of pods as much as you want or you can set up a horizontal auto scaler in OpenShift.
 
-## Setting up the client
+### Setting up the client
 To call the API service it is best to set up a client script which will automatically convert audio files / mic audio to raw vector data.
 In this repo under the recorder folder, there is a client script that can be run to automate calling the API. You can run this script locally or as a service on OpenShift using the client simulator. 
 
@@ -39,7 +39,7 @@ Set up the pip environment with `pipenv install` in the `/recorder` subdirectory
 - Wav file decoding
 - Simulating a client
 
-### Live decoding
+#### Live decoding
 For this option you need to first install pulseaudio. On Mac you can run the command `brew install pulseaudio`.
 It is usually installed on most Linux distributions by default.
 
@@ -50,14 +50,14 @@ pipenv run python app.py -H {HOST}
 ```
 The host is equal to the route you exposed from the decoder above. You can specify other other options for the audio input but it is not needed.
 
-### Wav file decoding
+#### Wav file decoding
 This does not require pulseaudio, so all you need to run is:
 ```
 pipenv run python app.py -H {HOST} -f {FILE}
 ```
 There are sample files located in the `/data` folder.
 
-### Simulate a client
+#### Simulate a client
 You can add the `-S` tag which will start a simulator. This picks a random wav file in the `/data` folder and decodes it. This repeats until the process is closed.
 ```
 pipenv run python app.py -H {HOST} -S
@@ -65,7 +65,7 @@ pipenv run python app.py -H {HOST} -S
 If you plan to run the simulator on OpenShift, you will need to set the `DO_SIMULATE` enviroment variable to `True`. This makes it so the script will auto run as 
 a simulator compared to the other options.
 
-### Kafka Streaming
+#### Kafka Streaming
 You can stream your clients predictions to a Kafka topic using the tags `-b` for the broker and `-t` for the topic. In OpenShift, you can set the `KAFKA_BROKERS` and `KAFKA_TOPIC` enviroment variables to your desired Kafka streams. Using Kafak here will produce the decoded audio (text) and the user id to the desired Kafka topic.
 ```
 pipenv run python app.py -H {HOST} -b {BROKER}:9092 -t {TOPIC}
