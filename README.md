@@ -76,3 +76,6 @@ Exmaples of how this stream is used can be found in the section on the sentiment
 
 ### Sentiment Analysis
 The serice that this model runs on is just a jupyter notebook. It uses a couple pre trained models and should be used as a refrence on how you might integrate Kafka streaming into a model service. The notebook should run on a service that runs jupyter on Openshift ([service](https://github.com/jupyter/docker-stacks/tree/master/minimal-notebook)).
+
+## Web App Dashboard
+You run visualize the final output of this demo usng this [repo](https://github.com/Gkrumbach07/call_center_manage). Deploy this on Opneshift and make sure to set enviroment variables for Kafka support. All is outlined in the repo's readme.
