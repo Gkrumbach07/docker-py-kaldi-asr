@@ -75,4 +75,4 @@ pipenv run python app.py -H {HOST} -b {BROKER}:9092 -t {TOPIC}
 Exmaples of how this stream is used can be found in the section on the sentiment analysis application below.
 
 ### Sentiment Analysis
-The serice that this model runs on is just a jupyter notebook. It uses a couple pre trained models and should be used as a refrence on how you might integrate Kafka streaming into a model service. The notebook should run on a service that runs jupyter on Openshift ([https://github.com/jupyter/docker-stacks/tree/master/minimal-notebook](service)).
+The serice that this model runs on is just a jupyter notebook. It uses a couple pre trained models and should be used as a refrence on how you might integrate Kafka streaming into a model service. The notebook should run on a service that runs jupyter on Openshift ([service](https://github.com/jupyter/docker-stacks/tree/master/minimal-notebook)).
