@@ -17,7 +17,7 @@ This repo contains a few elements:
 ## Audio decoder api
 This is a simple flask server that takes a POST request on the `/decode` route and returns a predicted result. This is meant to be used in
 live decoding applications, so session states need to be saved. This API is not stateless, as it stores the state of the decoder in the server itself.
-This is not a problem because later we will use OpenShit to deploy and scale the API properly.
+This is not a problem because later we will use OpenShift to deploy and scale the API properly.
 
 ### Deploying the api
 First we can run the following commands to deploy the API and expose its route on OpenShift. The image already contains a pre trained model, but you can edit the Dockerfile and rebuild the image if you want to inject a different model. Currently this image relies on a community made image of Kaldi. 
