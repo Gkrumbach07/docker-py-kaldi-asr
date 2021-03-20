@@ -68,7 +68,7 @@ If you plan to run the simulator on OpenShift, you will need to set the `DO_SIMU
 a simulator compared to the other options. You can deploy the script using OpenShift's source to image feature. Choose the from repository option and select Python as its base image.
 
 #### Kafka Streaming
-You can stream your clients predictions to a Kafka topic using the tags `-b` for the broker and `-t` for the topic. In OpenShift, you can set the `KAFKA_BROKERS` and `KAFKA_TOPIC` enviroment variables to your desired Kafka streams. Using Kafak here will produce the decoded audio (text) and the user id to the desired Kafka topic.
+You can stream your clients predictions to a Kafka topic using the tags `-b` for the broker and `-t` for the topic. In OpenShift, you can set the `KAFKA_BROKERS` and `KAFKA_TOPIC` enviroment variables to your desired Kafka streams. Using Kafka here will produce the decoded audio (text) and the user id to the desired Kafka topic.
 ```
 pipenv run python app.py -H {HOST} -b {BROKER}:9092 -t {TOPIC}
 ```
