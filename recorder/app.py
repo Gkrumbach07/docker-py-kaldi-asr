@@ -171,7 +171,7 @@ def main(options):
     if topic and broker:
         logging.info("Kafka broker and topic are set.")
     else:
-        logging.warning("A topic and broker were not specified. Kafka is diabled")
+        logging.warning("A topic and broker were not specified. Kafka is disabled")
 
 
     # set session id
