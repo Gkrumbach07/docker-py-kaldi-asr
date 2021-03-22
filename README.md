@@ -59,13 +59,13 @@ pipenv run python app.py -H {HOST} -f {FILE}
 ```
 There are sample files located in the `/data` folder.
 
-#### Simulate a client
+#### Simulate a client (on OpenShift)
 You can add the `-S` tag which will start a simulator. This picks a random wav file in the `/data` folder and decodes it. This repeats until the process is closed.
 ```
 pipenv run python app.py -H {HOST} -S
 ```
 If you plan to run the simulator on OpenShift, you will need to set the `DO_SIMULATE` enviroment variable to `True`. This makes it so the script will auto run as 
-a simulator compared to the other options. You can deploy the script using OpenShift's source to image feature. Choose the from repository option and select Python as its base image.
+a simulator compared to the other options. You can deploy the script using OpenShift's source to image feature. Choose the from repository option and select Python as its base image. Make sure to also set the Context dir under Advanded options to `recorder`.
 
 #### Kafka Streaming
 You can stream your clients predictions to a Kafka topic using the tags `-b` for the broker and `-t` for the topic. In OpenShift, you can set the `KAFKA_BROKERS` and `KAFKA_TOPIC` enviroment variables to your desired Kafka streams. Using Kafka here will produce the decoded audio (text) and the user id to the desired Kafka topic.
