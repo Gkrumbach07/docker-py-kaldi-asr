@@ -63,8 +63,13 @@ def decode():
         global producer
         global last_broker
         try:
+            ssl_cert_path = os.getenv("SSL_CERT_PATH", None)
+            
             if last_broker != broker or producer == None:
-                producer = KafkaProducer(bootstrap_servers=broker)
+                if ssl_cert_path != None:
+                    producer = KafkaProducer(bootstrap_servers=broker, security_protocol="SSL", ssl_cafile=ssl_cert_path)
+                else:
+                    producer = KafkaProducer(bootstrap_servers=broker)
                 last_broker = broker
                 logging.info ("New producer: %s", broker)
 
