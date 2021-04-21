@@ -46,7 +46,7 @@ def simulate(url, topic, broker):
 
 
 def decode_wav_file(file, url, topic, broker, wait):
-    global stream_id
+    stream_id = get_uuid()
 
     # create requests session for saving cookies
     session = requests.Session()
@@ -86,7 +86,6 @@ def decode_wav_file(file, url, topic, broker, wait):
                 'id'         : stream_id,
                 'sample_rate': sample_rate}
 
-        logging.info(finalize)
         response = session.post(url, json=data)
 
         if not response.ok:
@@ -103,7 +102,7 @@ def decode_live(source, volume, aggressiveness, url, topic, broker):
     from pulserecorder import PulseRecorder
     from vad import VAD, BUFFER_DURATION
 
-    global stream_id
+    stream_id = get_uuid()
 
     # create requests session for saving cookies
     session = requests.Session()
@@ -172,11 +171,6 @@ def main(options):
         logging.info("Kafka broker and topic are set.")
     else:
         logging.warning("A topic and broker were not specified. Kafka is disabled")
-
-
-    # set session id
-    global stream_id
-    stream_id = get_uuid()
 
 
     # function of script
