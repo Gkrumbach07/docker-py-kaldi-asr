@@ -86,7 +86,7 @@ def decode_wav_file(file, url, topic, broker, wait):
                 'id'         : stream_id,
                 'sample_rate': sample_rate}
 
-
+        logging.info(finalize)
         response = session.post(url, json=data)
 
         if not response.ok:
