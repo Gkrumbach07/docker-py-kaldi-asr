@@ -122,7 +122,7 @@ if __name__ == '__main__':
           kaldi_frame_subsampling_factor = DEFAULT_FRAME_SUBSAMPLING_FACTOR)
 
     # run HTTP server
-    try:
-        app.run(host="0.0.0.0", port=8080)
-    except Exception as e:
-        logging.error(e)
+    #try:
+   #     app.run(host="0.0.0.0", port=8080)
+  #  except Exception as e:
+   #     logging.error(e)
