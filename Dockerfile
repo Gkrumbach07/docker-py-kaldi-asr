@@ -28,6 +28,7 @@ RUN pip3 install \
         typing==3.6.4 \
         wheel \
         kafka \
+        gevent \
         flask \
         Werkzeug==0.16.0
 
