@@ -88,37 +88,38 @@ def decode():
     return {'hstr': hstr, 'confidence': confidence}
 
 
-# commandline
-parser = OptionParser("usage: %prog [options] ")
+if __name__ == '__main__':
+    # commandline
+    parser = OptionParser("usage: %prog [options] ")
 
-parser.add_option ("-v", "--verbose", action="store_true", dest="verbose",
-                   help="verbose output")
+    parser.add_option ("-v", "--verbose", action="store_true", dest="verbose",
+                       help="verbose output")
 
-parser.add_option ("-H", "--host", dest="host", type = "string", default=DEFAULT_HOST,
-                   help="host, default: %s" % DEFAULT_HOST)
+    parser.add_option ("-H", "--host", dest="host", type = "string", default=DEFAULT_HOST,
+                       help="host, default: %s" % DEFAULT_HOST)
 
-parser.add_option ("-p", "--port", dest="port", type = "int", default=DEFAULT_PORT,
-                   help="port, default: %d" % DEFAULT_PORT)
+    parser.add_option ("-p", "--port", dest="port", type = "int", default=DEFAULT_PORT,
+                       help="port, default: %d" % DEFAULT_PORT)
 
-parser.add_option ("-d", "--model-dir", dest="model_dir", type = "string", default=DEFAULT_MODEL_DIR,
-                   help="kaldi model directory, default: %s" % DEFAULT_MODEL_DIR)
+    parser.add_option ("-d", "--model-dir", dest="model_dir", type = "string", default=DEFAULT_MODEL_DIR,
+                       help="kaldi model directory, default: %s" % DEFAULT_MODEL_DIR)
 
-parser.add_option ("-m", "--model", dest="model", type = "string", default=DEFAULT_MODEL,
-                   help="kaldi model, default: %s" % DEFAULT_MODEL)
+    parser.add_option ("-m", "--model", dest="model", type = "string", default=DEFAULT_MODEL,
+                       help="kaldi model, default: %s" % DEFAULT_MODEL)
 
-(options, args) = parser.parse_args()
+    (options, args) = parser.parse_args()
 
-if options.verbose:
-    logging.basicConfig(level=logging.DEBUG)
-else:
-    logging.basicConfig(level=logging.INFO)
+    if options.verbose:
+        logging.basicConfig(level=logging.DEBUG)
+    else:
+        logging.basicConfig(level=logging.INFO)
 
-kaldi_model_dir = options.model_dir
-kaldi_model     = options.model
+    kaldi_model_dir = options.model_dir
+    kaldi_model     = options.model
 
-asr = ASR(engine = ASR_ENGINE_NNET3, model_dir = kaldi_model_dir,
-      kaldi_beam = DEFAULT_BEAM, kaldi_acoustic_scale = DEFAULT_ACOUSTIC_SCALE,
-      kaldi_frame_subsampling_factor = DEFAULT_FRAME_SUBSAMPLING_FACTOR)
+    asr = ASR(engine = ASR_ENGINE_NNET3, model_dir = kaldi_model_dir,
+          kaldi_beam = DEFAULT_BEAM, kaldi_acoustic_scale = DEFAULT_ACOUSTIC_SCALE,
+          kaldi_frame_subsampling_factor = DEFAULT_FRAME_SUBSAMPLING_FACTOR)
 
     # run HTTP server
     #try:
