@@ -28,14 +28,13 @@ RUN pip3 install \
         typing==3.6.4 \
         wheel \
         kafka \
-        gevent \
+        gunicorn \
         flask \
         Werkzeug==0.16.0
 
 RUN pip3 install py-kaldi-asr==0.5.2
 
 COPY app.py /opt/asr_server/
-COPY pywsgi.py /opt/asr_server/
 
 RUN apt-get install xz-utils -y && \
     apt-get clean && \
@@ -56,4 +55,4 @@ RUN wget -q http://goofy.zamia.org/zamia-speech/asr-models/${MODEL_NAME}.tar.xz 
 EXPOSE 8080
 
 WORKDIR /opt/asr_server
-CMD ["python3", "pywsgi.py"]
+CMD ["gunicorn"  , "-b", "0.0.0.0:8000", "app:app"]
