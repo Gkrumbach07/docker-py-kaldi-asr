@@ -64,7 +64,7 @@ def decode():
         global last_broker
         try:
             ssl_cert_path = os.getenv("SSL_CERT_PATH", None)
-            
+
             if last_broker != broker or producer == None:
                 if ssl_cert_path != None:
                     producer = KafkaProducer(bootstrap_servers=broker, security_protocol="SSL", ssl_cafile=ssl_cert_path)
@@ -121,8 +121,12 @@ if __name__ == '__main__':
           kaldi_beam = DEFAULT_BEAM, kaldi_acoustic_scale = DEFAULT_ACOUSTIC_SCALE,
           kaldi_frame_subsampling_factor = DEFAULT_FRAME_SUBSAMPLING_FACTOR)
 
-    # run HTTP server
-    #try:
-   #     app.run(host="0.0.0.0", port=8080)
-  #  except Exception as e:
-   #     logging.error(e)
+else:
+    logging.basicConfig(level=logging.INFO)
+
+    kaldi_model_dir = DEFAULT_MODEL_DIR
+    kaldi_model     = DEFAULT_MODEL
+
+    asr = ASR(engine = ASR_ENGINE_NNET3, model_dir = DEFAULT_MODEL_DIR,
+          kaldi_beam = DEFAULT_BEAM, kaldi_acoustic_scale = DEFAULT_ACOUSTIC_SCALE,
+          kaldi_frame_subsampling_factor = DEFAULT_FRAME_SUBSAMPLING_FACTOR)
