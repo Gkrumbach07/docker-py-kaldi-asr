@@ -55,4 +55,4 @@ RUN wget -q http://goofy.zamia.org/zamia-speech/asr-models/${MODEL_NAME}.tar.xz 
 EXPOSE 8080
 
 WORKDIR /opt/asr_server
-CMD ["gunicorn"  , "-b", "0.0.0.0:8080", "app:app"]
+CMD ["gunicorn"  , "--bind", "0.0.0.0:8080", "app:app"]
