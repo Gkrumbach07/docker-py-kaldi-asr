@@ -1,5 +1,4 @@
-from kafka import KafkaConsumer
-from kafka import KafkaProducer
+import kafka
 import nltk
 import flair
 import json
@@ -9,8 +8,8 @@ def main():
     from_topic = 'audio-decoder.decoded-speech'
     to_topic = 'audio-decoder.sentiment-text'
 
-    consumer = KafkaConsumer(from_topic, bootstrap_servers=brokers, group_id="default")
-    producer = KafkaProducer(bootstrap_servers=brokers)
+    consumer = kafka.KafkaConsumer(from_topic, bootstrap_servers=brokers, group_id="default")
+    producer = kafka.KafkaProducer(bootstrap_servers=brokers)
 
     flair_sentiment = flair.models.TextClassifier.load('en-sentiment')
     nltk.download('punkt')
