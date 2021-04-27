@@ -39,8 +39,6 @@ def main():
                 if pair[1][:2] == 'NN':
                     nouns.append(pair[0])
                     
-            print(obj_in["id"])
-
             # We complile our model outputs into an object with an ID.
             # We use an ID to track which call this text came from
             data = {
