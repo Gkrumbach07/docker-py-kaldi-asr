@@ -16,8 +16,6 @@ from optparse import OptionParser
 DEFAULT_URL = 'localhost:8080'
 DEFAULT_VOLUME = 150
 DEFAULT_AGGRESSIVENESS = 2
-stream_id = "__defualt__"
-
 
 def get_uuid():
     ip = None
@@ -37,17 +35,16 @@ def get_arg(env, default):
 
 def simulate(url, topic, broker):
     # pick audio file and decode
+    id = get_uuid()
     while(True):
         file = random.choice(os.listdir("data"))
         if os.path.splitext(file)[1] != '.wav':
             continue
-        decode_wav_file("data/" + file, url, topic, broker, .25)
+        decode_wav_file("data/" + file, url, topic, broker, .25, id)
         sleep(random.randint(2, 8))
 
 
-def decode_wav_file(file, url, topic, broker, wait):
-    stream_id = get_uuid()
-
+def decode_wav_file(file, url, topic, broker, wait, stream_id):
     # create requests session for saving cookies
     session = requests.Session()
 
@@ -177,7 +174,7 @@ def main(options):
     if do_simulate:
         simulate(url, topic, broker)
     elif options.file:
-        decode_wav_file(options.file, url, topic, broker, 0)
+        decode_wav_file(options.file, url, topic, broker, 0, "__default__")
     else:
         decode_live(source, volume, aggressiveness, url, topic, broker)
 
