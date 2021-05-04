@@ -2,7 +2,6 @@
 #FROM quay.io/gkrumbach07/kaldi-base-debian:latest
 
 FROM nvidia/cuda:10.0-cudnn7-devel-ubuntu18.04
-LABEL maintainer="mdoulaty@gmail.com"
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
