@@ -67,7 +67,7 @@ def decode():
 
             if last_broker != broker or producer == None:
                 if ssl_cert_path != None:
-                    producer = KafkaProducer(bootstrap_servers=broker, security_protocol="SSL", ssl_cafile=ssl_cert_path)
+                    producer = KafkaProducer(bootstrap_servers=broker, security_protocol="SSL", ssl_cafile=ssl_cert_path + "/ca.crt", ssl_keyfile=ssl_cert_path + "/user.key", ssl_password=ssl_cert_path + "/user.password", ssl_certfile=ssl_cert_path + "/user.crt")
                 else:
                     producer = KafkaProducer(bootstrap_servers=broker)
                 last_broker = broker
