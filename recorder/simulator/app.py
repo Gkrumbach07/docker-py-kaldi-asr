@@ -2,14 +2,16 @@ import kafka
 import nltk
 import flair
 import json
+import os
 
 def main():
     brokers = 'odh-message-bus-kafka-bootstrap.opf-kafka.svc:9092'
     from_topic = 'audio-decoder.decoded-speech'
     to_topic = 'audio-decoder.sentiment-text'
+    ssl_cert_path = os.getenv("SSL_CERT_PATH", None)
 
-    consumer = kafka.KafkaConsumer(from_topic, bootstrap_servers=brokers, group_id="default")
-    producer = kafka.KafkaProducer(bootstrap_servers=brokers)
+    consumer = kafka.KafkaConsumer(from_topic, bootstrap_servers=brokers, group_id="default", security_protocol="SSL", ssl_cafile=ssl_cert_path + "/ca.crt", ssl_keyfile=ssl_cert_path + "/user.key", ssl_password=ssl_cert_path + "/user.password", ssl_certfile=ssl_cert_path + "/user.crt")
+    producer = kafka.KafkaProducer(bootstrap_servers=brokers, security_protocol="SSL", ssl_cafile=ssl_cert_path + "/ca.crt", ssl_keyfile=ssl_cert_path + "/user.key", ssl_password=ssl_cert_path + "/user.password", ssl_certfile=ssl_cert_path + "/user.crt")
 
     flair_sentiment = flair.models.TextClassifier.load('en-sentiment')
     nltk.download('punkt')
