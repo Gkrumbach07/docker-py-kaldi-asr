@@ -1,5 +1,5 @@
 kafka
 flair
 nltk
-torch==1.6
+torch
 scipy
