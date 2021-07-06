@@ -1,8 +1,9 @@
 import kafka
 import nltk
-import flair
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import json
 import os
+import ssl
 
 def main():
     brokers = 'odh-message-bus-kafka-bootstrap.opf-kafka.svc:9092'
@@ -13,12 +14,22 @@ def main():
     consumer = kafka.KafkaConsumer(from_topic, bootstrap_servers=brokers, group_id="default", security_protocol="SSL", ssl_cafile=ssl_cert_path + "/ca.crt", ssl_keyfile=ssl_cert_path + "/user.key", ssl_password=ssl_cert_path + "/user.password", ssl_certfile=ssl_cert_path + "/user.crt")
     producer = kafka.KafkaProducer(bootstrap_servers=brokers, security_protocol="SSL", ssl_cafile=ssl_cert_path + "/ca.crt", ssl_keyfile=ssl_cert_path + "/user.key", ssl_password=ssl_cert_path + "/user.password", ssl_certfile=ssl_cert_path + "/user.crt")
 
-    flair_sentiment = flair.models.TextClassifier.load('en-sentiment')
+    try:
+        _create_unverified_https_context = ssl._create_unverified_context
+    except AttributeError:
+        pass
+    else:
+        ssl._create_default_https_context = _create_unverified_https_context
+    
+    nltk.download('vader_lexicon')
     nltk.download('punkt')
     nltk.download('averaged_perceptron_tagger')
 
     # change the consumer_id to any string
     consumer_id = "DEFAULT"
+    
+    # nltk sentiment
+    sid = SentimentIntensityAnalyzer()
 
     print("ready to consume")
     for msg in consumer:
@@ -29,9 +40,8 @@ def main():
             if obj_in["sentence"] == "":
                 continue
 
-            # Using flair, we create a sentence and predict its sentiment.
-            s = flair.data.Sentence(obj_in["sentence"])
-            flair_sentiment.predict(s)
+            # Using nltk, we create a sentence and predict its sentiment.
+            quality = sid.polarity_scores(obj_in["sentence"])
 
             # Using NLTK, we tokenize the sentence and extract only the nouns
             text = nltk.word_tokenize(obj_in["sentence"])
@@ -45,7 +55,7 @@ def main():
             # We use an ID to track which call this text came from
             data = {
                 "sentence": obj_in["sentence"],
-                "quality": s.labels[0].value,
+                "quality": quality['compound'],
                 "nouns": nouns,
                 "id": obj_in["id"],
                 "consumer": consumer_id
