@@ -1,5 +1,2 @@
 kafka
-flair
 nltk
-torch
-scipy
