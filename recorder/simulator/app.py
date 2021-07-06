@@ -3,7 +3,6 @@ import nltk
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import json
 import os
-import ssl
 
 def main():
     brokers = 'odh-message-bus-kafka-bootstrap.opf-kafka.svc:9092'
@@ -13,13 +12,6 @@ def main():
 
     consumer = kafka.KafkaConsumer(from_topic, bootstrap_servers=brokers, group_id="default", security_protocol="SSL", ssl_cafile=ssl_cert_path + "/ca.crt", ssl_keyfile=ssl_cert_path + "/user.key", ssl_password=ssl_cert_path + "/user.password", ssl_certfile=ssl_cert_path + "/user.crt")
     producer = kafka.KafkaProducer(bootstrap_servers=brokers, security_protocol="SSL", ssl_cafile=ssl_cert_path + "/ca.crt", ssl_keyfile=ssl_cert_path + "/user.key", ssl_password=ssl_cert_path + "/user.password", ssl_certfile=ssl_cert_path + "/user.crt")
-
-    try:
-        _create_unverified_https_context = ssl._create_unverified_context
-    except AttributeError:
-        pass
-    else:
-        ssl._create_default_https_context = _create_unverified_https_context
     
     nltk.download('vader_lexicon')
     nltk.download('punkt')
